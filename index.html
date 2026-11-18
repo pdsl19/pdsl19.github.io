@@ -35,7 +35,7 @@
             theme: {
                 extend: {
                     colors: {
-                        volt: '#D2FF00',
+                        volt: 'rgb(var(--volt-rgb, 210 255 0) / <alpha-value>)',
                         obsidian: '#070709',
                     },
                     fontFamily: {
@@ -702,12 +702,30 @@
     </div>
 
     <!-- BOTÃO FLUTUANTE DO TERMINAL (PC & MOBILE) -->
-    <button type="button" onclick="openCLIModal()" aria-label="Abrir Terminal Interativo"
-            class="hover-target fixed bottom-5 left-4 sm:left-6 z-40 bg-obsidian/90 backdrop-blur-md border border-volt/50 hover:border-volt text-volt font-mono text-[11px] sm:text-xs font-bold px-3.5 py-2.5 shadow-[0_0_25px_rgba(210,255,0,0.15)] flex items-center gap-2.5 hover:bg-volt hover:text-black active:scale-95 transition group">
-        <span class="w-2 h-2 bg-volt group-hover:bg-black animate-pulse"></span>
-        <span>>_ TERMINAL</span>
-        <span class="hidden sm:inline-block text-[10px] px-1.5 py-0.5 bg-zinc-900 text-zinc-400 border border-white/10 group-hover:bg-black group-hover:text-volt">CTRL+K</span>
-    </button>
+    <!-- DOCK TÁTICA FLUTUANTE: TERMINAL + LIVERY + SOM (PC & MOBILE) -->
+    <div class="fixed bottom-5 left-4 sm:left-6 z-40 flex items-center bg-obsidian/90 backdrop-blur-md border border-volt/50 shadow-[0_0_25px_rgba(210,255,0,0.12)] font-mono text-[11px] sm:text-xs">
+        
+        <!-- 1. Abrir Terminal -->
+        <button type="button" onclick="openCLIModal()" aria-label="Abrir Terminal Interativo"
+                class="hover-target text-volt font-bold px-3 sm:px-3.5 py-2.5 flex items-center gap-2 hover:bg-volt hover:text-black active:scale-95 transition group border-r border-white/10">
+            <span class="w-2 h-2 bg-volt group-hover:bg-black animate-pulse"></span>
+            <span>>_ CLI</span>
+            <span class="hidden md:inline-block text-[10px] px-1.5 py-0.5 bg-zinc-900 text-zinc-400 border border-white/10 group-hover:bg-black group-hover:text-volt">CTRL+K</span>
+        </button>
+
+        <!-- 2. Trocar Livery (Cor do Site) -->
+        <button type="button" id="livery-btn" onclick="cycleLivery()" aria-label="Trocar Cor do Tema"
+                class="hover-target text-zinc-300 hover:text-volt font-bold px-3 sm:px-3.5 py-2.5 flex items-center gap-2 hover:bg-white/5 active:scale-95 transition border-r border-white/10">
+            <span class="w-2 h-2 rounded-full bg-volt"></span>
+            <span id="livery-label">VOLT</span>
+        </button>
+
+        <!-- 3. Ligar / Desligar Som Tático -->
+        <button type="button" id="sfx-btn" onclick="toggleSFX()" aria-label="Alternar Efeitos Sonoros"
+                class="hover-target text-volt font-bold px-3 sm:px-3.5 py-2.5 flex items-center gap-1.5 hover:bg-white/5 active:scale-95 transition">
+            <span id="sfx-label">SFX: ON</span>
+        </button>
+    </div>
 
     <!-- MODAL DO TERMINAL INTERATIVO (CTRL + K) -->
     <div id="cli-modal" class="fixed inset-0 z-[92] hidden items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md">
@@ -1371,6 +1389,125 @@
                 runCLICommand(val);
             });
         }
+
+        // 14. UPGRADE 04: MOTOR DE SOM TÁTICO (WEB AUDIO API) & SELETOR DE LIVERY
+        const liveries = [
+            { name: 'VOLT',    full: 'LN4 // NEON VOLT',    rgb: '210 255 0',  hex: '#D2FF00' },
+            { name: 'PAPAYA',  full: 'MCL // PAPAYA',       rgb: '255 85 0',   hex: '#FF5500' },
+            { name: 'CRIMSON', full: 'SLB // CRIMSON RED',  rgb: '255 30 56',  hex: '#FF1E38' },
+            { name: 'CYAN',    full: 'NET // CYBER CYAN',   rgb: '0 240 255',  hex: '#00F0FF' }
+        ];
+        let currentLiveryIdx = 0;
+
+        // Folha de estilo dinâmica para atualizar cursor, texto outline e spotlight
+        const dynamicStyle = document.createElement('style');
+        document.head.appendChild(dynamicStyle);
+
+        function applyLivery(index, showHudAlert = true) {
+            const liv = liveries[index];
+            document.documentElement.style.setProperty('--volt-rgb', liv.rgb);
+
+            const rgbComma = liv.rgb.split(' ').join(', ');
+            dynamicStyle.innerHTML = `
+                #cursor-dot { background-color: ${liv.hex} !important; }
+                #cursor-ring { border-color: rgba(${rgbComma}, 0.5) !important; }
+                body.cursor-hover #cursor-ring { background-color: rgba(${rgbComma}, 0.12) !important; border-color: ${liv.hex} !important; }
+                .text-outline:hover, .group:hover .text-outline { -webkit-text-stroke-color: ${liv.hex} !important; color: ${liv.hex} !important; }
+                .spotlight-card::before { background: radial-gradient(circle, rgba(${rgbComma}, 0.14) 0%, transparent 70%) !important; }
+                #scroll-progress { box-shadow: 0 0 10px ${liv.hex} !important; }
+            `;
+
+            const labelEl = document.getElementById('livery-label');
+            if (labelEl) labelEl.textContent = liv.name;
+
+            if (showHudAlert && navHud && navHudText) {
+                navHudText.textContent = `LIVERY // ${liv.full} [${liv.hex}]`;
+                gsap.killTweensOf(navHud);
+                gsap.to(navHud, { opacity: 1, y: 0, duration: 0.2, ease: 'power2.out' });
+                gsap.to(navHud, { opacity: 0, y: -8, duration: 0.3, delay: 1.4 });
+            }
+        }
+
+        function cycleLivery() {
+            currentLiveryIdx = (currentLiveryIdx + 1) % liveries.length;
+            applyLivery(currentLiveryIdx, true);
+            playTelemetrySound('click');
+        }
+
+        // Sintetizador Web Audio API (Zero ficheiros MP3 externos)
+        let audioCtx = null;
+        let sfxEnabled = true;
+        let lastHoverSound = 0;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) audioCtx = new AudioContextClass();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTelemetrySound(type = 'hover') {
+            if (!sfxEnabled) return;
+            initAudio();
+            if (!audioCtx) return;
+
+            const now = audioCtx.currentTime;
+            if (type === 'hover') {
+                if (performance.now() - lastHoverSound < 45) return;
+                lastHoverSound = performance.now();
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1350, now);
+                osc.frequency.exponentialRampToValueAtTime(750, now + 0.018);
+
+                gain.gain.setValueAtTime(0.018, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.018);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.02);
+            } else if (type === 'click') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(520, now);
+                osc.frequency.exponentialRampToValueAtTime(1240, now + 0.055);
+
+                gain.gain.setValueAtTime(0.045, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.065);
+            }
+        }
+
+        function toggleSFX() {
+            sfxEnabled = !sfxEnabled;
+            const sfxLabel = document.getElementById('sfx-label');
+            const sfxBtn = document.getElementById('sfx-btn');
+            if (sfxLabel) sfxLabel.textContent = sfxEnabled ? 'SFX: ON' : 'SFX: OFF';
+            if (sfxBtn) {
+                sfxBtn.classList.toggle('text-volt', sfxEnabled);
+                sfxBtn.classList.toggle('text-zinc-500', !sfxEnabled);
+            }
+            if (sfxEnabled) playTelemetrySound('click');
+        }
+
+        // Ligar eventos sonoros aos elementos interativos
+        document.querySelectorAll('.hover-target, .nav-link, .mobile-nav-link').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                if (isDesktopPointer) playTelemetrySound('hover');
+            });
+            el.addEventListener('click', () => playTelemetrySound('click'));
+        });
         
     </script>
 </body>
