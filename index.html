@@ -206,27 +206,30 @@
     </div>
 
     <!-- 1. NAVBAR HUD -->
-    <header class="fixed top-0 w-full z-50 bg-obsidian/85 backdrop-blur-md border-b border-white/10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
-            <a href="#topo" data-label="00. HOME" class="nav-link hover-target font-display text-base sm:text-lg font-bold tracking-tighter flex items-center gap-2">
-                <span class="w-2.5 h-2.5 bg-volt inline-block"></span>
+    <!-- 1. NAVBAR HUD (FULL-WIDTH COCKPIT) -->
+    <header class="fixed top-0 w-full z-50 bg-obsidian/85 backdrop-blur-md border-b border-white/10 whitespace-nowrap">
+        <div class="w-full px-4 sm:px-8 lg:px-12 h-16 sm:h-20 flex items-center justify-between gap-4">
+            
+            <!-- Esquerda: Logo -->
+            <a href="#topo" data-label="00. HOME" class="nav-link hover-target font-display text-base sm:text-lg font-bold tracking-tighter flex items-center gap-2 shrink-0">
+                <span class="w-2.5 h-2.5 bg-volt inline-block shrink-0"></span>
                 PEDRO<span class="text-volt">LOPES</span>
                 <span class="font-mono text-[10px] text-zinc-500 border border-zinc-800 px-1.5 py-0.5 rounded ml-1">PL19</span>
             </a>
 
-            <!-- Navegação Desktop -->
-            <nav class="hidden md:flex items-center gap-7 font-mono text-xs uppercase tracking-widest text-zinc-400">
+            <!-- Centro: Navegação Desktop (Sempre numa linha só) -->
+            <nav class="hidden xl:flex items-center justify-center gap-4 2xl:gap-7 font-mono text-xs uppercase tracking-wider text-zinc-400 shrink-0">
                 <a href="#projetos" data-label="01. PROJETOS" class="nav-link hover-target hover:text-volt transition relative py-1">[01. Projetos]</a>
                 <a href="#experiencia" data-label="02. PERCURSO" class="nav-link hover-target hover:text-volt transition relative py-1">[02. Percurso]</a>
                 <a href="#stack" data-label="03. STACK" class="nav-link hover-target hover:text-volt transition relative py-1">[03. Stack]</a>
                 <a href="#contacto" data-label="04. CONTACTO" class="nav-link hover-target hover:text-volt transition relative py-1">[04. Contacto]</a>
-                <button type="button" onclick="openCVModal()" class="hover-target text-volt border border-volt/40 bg-volt/10 px-3 py-1 hover:bg-volt hover:text-black transition font-bold">
+                <button type="button" onclick="openCVModal()" class="hover-target text-volt border border-volt/40 bg-volt/10 px-3.5 py-1.5 hover:bg-volt hover:text-black transition font-bold">
                     [05. CV // PDF ↓]
                 </button>
             </nav>
 
-            <!-- Controlos Direita -->
-            <div class="flex items-center gap-2.5 sm:gap-3">
+            <!-- Direita: Idioma + Ping/Relógio + GitHub -->
+            <div class="flex items-center gap-2.5 sm:gap-3.5 shrink-0">
                 <span id="live-clock" class="hidden lg:inline-block font-mono text-xs text-zinc-500">00:00:00 WET</span>
                 
                 <a href="https://github.com/pdsl19" target="_blank" rel="noopener noreferrer" 
@@ -234,11 +237,11 @@
                     GITHUB // PDSL19 ↗
                 </a>
 
-                <button type="button" onclick="openCVModal()" class="md:hidden font-mono text-[11px] bg-volt/10 border border-volt/50 text-volt px-3 py-2 font-bold active:scale-95 transition">
+                <button type="button" onclick="openCVModal()" class="xl:hidden font-mono text-[11px] bg-volt/10 border border-volt/50 text-volt px-3 py-2 font-bold active:scale-95 transition">
                     CV ↓
                 </button>
                 <button type="button" id="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Abrir Menu"
-                        class="md:hidden font-mono text-[11px] bg-volt text-black font-bold px-3.5 py-2 active:scale-95 transition">
+                        class="xl:hidden font-mono text-[11px] bg-volt text-black font-bold px-3.5 py-2 active:scale-95 transition">
                     MENU +
                 </button>
             </div>
@@ -2573,7 +2576,7 @@
                 hideCtxMenu();
             }
         });
-        
+
     </script>
 </body>
 </html>
