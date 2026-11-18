@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>PEDRO LOPES // WEB & NETWORKS</title>
+    <!-- Meta Tags SEO & Partilha (Open Graph) -->
+    <meta name="description" content="Portfólio de Pedro Dinis Lopes — Desenvolvimento Web Full-Stack, Bases de Dados Relacionais e Infraestrutura de Redes em Vila Nova de Gaia, Portugal.">
+    <meta name="author" content="Pedro Dinis Lopes">
+    <meta property="og:title" content="PEDRO LOPES // WEB & NETWORKS">
+    <meta property="og:description" content="Full-Stack Web Development & Network Infrastructure. Projetos, Percurso e Stack Técnica.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pdsl19.github.io">
+    <meta name="theme-color" content="#D2FF00">
+
+    <!-- Favicon SVG Inline (Quadrado Obsidian com PL em Neon Volt) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23070709'/%3E%3Crect x='4' y='4' width='92' height='92' fill='none' stroke='%23D2FF00' stroke-width='6'/%3E%3Ctext x='50' y='66' font-family='monospace' font-weight='bold' font-size='44' fill='%23D2FF00' text-anchor='middle'%3EPL%3C/text%3E%3C/svg%3E">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Space Grotesk (Display), Inter (Body), JetBrains Mono (HUD) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    
+    <!-- GSAP + ScrollTrigger + ScrollToPlugin + Lenis Smooth Scroll -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+    <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        volt: '#D2FF00',
+                        obsidian: '#070709',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        html, body {
+            background-color: #070709;
+            color: #F4F4F6;
+            overflow-x: hidden;
+            width: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        @media (pointer: fine) {
+            body { cursor: none; }
+        }
+
+        .bg-grid {
+            background-size: 55px 55px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+
+        .text-outline {
+            -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.28);
+            color: transparent;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .text-outline:hover, .group:hover .text-outline {
+            -webkit-text-stroke: 1.5px #D2FF00;
+            color: #D2FF00;
+        }
+
+        #cursor-dot, #cursor-ring {
+            pointer-events: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            border-radius: 50%;
+        }
+        #cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #D2FF00;
+        }
+        #cursor-ring {
+            width: 40px;
+            height: 40px;
+            border: 1.5px solid rgba(210, 255, 0, 0.5);
+            transition: width 0.25s ease, height 0.25s ease, background-color 0.25s ease;
+        }
+        body.cursor-hover #cursor-ring {
+            width: 68px;
+            height: 68px;
+            background-color: rgba(210, 255, 0, 0.12);
+            border-color: #D2FF00;
+        }
+
+        @media (pointer: coarse) {
+            #cursor-dot, #cursor-ring { display: none !important; }
+        }
+
+        .marquee-track {
+            display: flex;
+            width: max-content;
+            animation: marquee 22s linear infinite;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .spotlight-card {
+            position: relative;
+            overflow: hidden;
+        }
+        @media (pointer: fine) {
+            .spotlight-card::before {
+                content: '';
+                position: absolute;
+                top: var(--mouse-y, -500px);
+                left: var(--mouse-x, -500px);
+                width: 450px;
+                height: 450px;
+                background: radial-gradient(circle, rgba(210, 255, 0, 0.13) 0%, transparent 70%);
+                transform: translate(-50%, -50%);
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+            .spotlight-card:hover::before {
+                opacity: 1;
+            }
+        }
+
+        #warp-container {
+            transform-origin: center center;
+            will-change: transform;
+        }
+    </style>
+</head>
+<body class="bg-grid selection:bg-volt selection:text-black">
+
+    <!-- CURSOR PERSONALIZADO (PC) -->
+    <div id="cursor-dot"></div>
+    <div id="cursor-ring"></div>
+
+    <!-- HUD DE TRANSIÇÃO DE NAVEGAÇÃO -->
+    <div id="nav-hud" class="fixed top-20 left-0 w-full z-40 pointer-events-none opacity-0 -translate-y-2">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="bg-volt text-black font-mono text-[11px] sm:text-xs font-bold px-4 py-1.5 inline-flex items-center gap-3 shadow-[0_0_25px_rgba(210,255,0,0.4)]">
+                <span class="w-2 h-2 bg-black animate-ping"></span>
+                <span id="nav-hud-text">ROUTING // TARGET</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICAÇÃO INTELIGENTE DE EMAIL -->
+    <div id="email-toast" class="fixed bottom-5 right-4 left-4 sm:left-auto sm:right-6 z-[95] pointer-events-none opacity-0 translate-y-6 transition-all duration-300">
+        <div class="bg-zinc-950 border-2 border-volt p-4 sm:p-5 shadow-[0_0_40px_rgba(210,255,0,0.2)] max-w-md ml-auto">
+            <div class="flex items-center justify-between gap-4 mb-2">
+                <span class="font-mono text-xs font-bold text-volt flex items-center gap-2">
+                    <span class="w-2 h-2 bg-volt animate-ping"></span>
+                    EMAIL COPIADO PARA O CLIPBOARD
+                </span>
+                <button type="button" onclick="hideEmailToast()" class="text-zinc-400 hover:text-white font-mono text-xs">[×]</button>
+            </div>
+            <p class="font-mono text-xs text-zinc-300 mb-4 break-all">pedrodinislopes@gmail.com</p>
+            <div class="grid grid-cols-2 gap-2 font-mono text-[11px]">
+                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=pedrodinislopes@gmail.com" target="_blank" rel="noopener noreferrer"
+                   class="bg-volt text-black font-bold py-2.5 px-3 text-center hover:bg-white transition">
+                    ABRIR GMAIL WEB ↗
+                </a>
+                <a href="mailto:pedrodinislopes@gmail.com"
+                   class="bg-zinc-900 text-white border border-white/20 py-2.5 px-3 text-center hover:border-volt hover:text-volt transition">
+                    APP DE EMAIL ↗
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- BARRA DE PROGRESSO NO TOPO -->
+    <div id="scroll-bar-wrap" class="fixed top-0 left-0 w-full h-[2px] z-[60] bg-white/5">
+        <div id="scroll-progress" class="h-full bg-volt w-0 shadow-[0_0_10px_#D2FF00]"></div>
+    </div>
+
+    <!-- PRELOADER -->
+    <div id="preloader" class="fixed inset-0 z-[100] bg-obsidian flex flex-col justify-between p-6 sm:p-12 border-b-2 border-volt">
+        <div class="flex justify-between items-center font-mono text-[10px] sm:text-xs text-zinc-500">
+            <span>PEDRO.LOPES // SYSTEM BOOT</span>
+            <span>VNG, PT [41.1239° N]</span>
+        </div>
+        <div class="overflow-hidden">
+            <div class="font-display text-6xl sm:text-9xl font-bold tracking-tighter text-volt" id="loader-counter">
+                00%
+            </div>
+        </div>
+        <div class="w-full bg-zinc-900 h-1 overflow-hidden">
+            <div id="loader-bar" class="bg-volt h-full w-0"></div>
+        </div>
+    </div>
+
+    <!-- 1. NAVBAR HUD -->
+    <header class="fixed top-0 w-full z-50 bg-obsidian/85 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
+            <a href="#topo" data-label="00. HOME" class="nav-link hover-target font-display text-base sm:text-lg font-bold tracking-tighter flex items-center gap-2">
+                <span class="w-2.5 h-2.5 bg-volt inline-block"></span>
+                PEDRO<span class="text-volt">LOPES</span>
+                <span class="font-mono text-[10px] text-zinc-500 border border-zinc-800 px-1.5 py-0.5 rounded ml-1">PL19</span>
+            </a>
+
+            <!-- Navegação Desktop -->
+            <nav class="hidden md:flex items-center gap-7 font-mono text-xs uppercase tracking-widest text-zinc-400">
+                <a href="#projetos" data-label="01. PROJETOS" class="nav-link hover-target hover:text-volt transition relative py-1">[01. Projetos]</a>
+                <a href="#experiencia" data-label="02. PERCURSO" class="nav-link hover-target hover:text-volt transition relative py-1">[02. Percurso]</a>
+                <a href="#stack" data-label="03. STACK" class="nav-link hover-target hover:text-volt transition relative py-1">[03. Stack]</a>
+                <a href="#contacto" data-label="04. CONTACTO" class="nav-link hover-target hover:text-volt transition relative py-1">[04. Contacto]</a>
+                <button type="button" onclick="openCVModal()" class="hover-target text-volt border border-volt/40 bg-volt/10 px-3 py-1 hover:bg-volt hover:text-black transition font-bold">
+                    [05. CV // PDF ↓]
+                </button>
+            </nav>
+
+            <!-- Controlos Direita -->
+            <div class="flex items-center gap-2.5 sm:gap-3">
+                <span id="live-clock" class="hidden lg:inline-block font-mono text-xs text-zinc-500">00:00:00 WET</span>
+                
+                <a href="https://github.com/pdsl19" target="_blank" rel="noopener noreferrer" 
+                   class="hidden sm:inline-block hover-target magnetic font-mono text-xs bg-volt text-black font-bold px-4 py-2.5 rounded-none hover:bg-white transition">
+                    GITHUB // PDSL19 ↗
+                </a>
+
+                <button type="button" onclick="openCVModal()" class="md:hidden font-mono text-[11px] bg-volt/10 border border-volt/50 text-volt px-3 py-2 font-bold active:scale-95 transition">
+                    CV ↓
+                </button>
+                <button type="button" id="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Abrir Menu"
+                        class="md:hidden font-mono text-[11px] bg-volt text-black font-bold px-3.5 py-2 active:scale-95 transition">
+                    MENU +
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MENU MOBILE FULL-SCREEN -->
+    <div id="mobile-menu" class="fixed inset-0 z-40 bg-obsidian/95 backdrop-blur-xl hidden flex-col justify-between pt-24 pb-8 px-6 md:hidden">
+        <div class="space-y-2">
+            <div class="font-mono text-[10px] text-zinc-500 uppercase tracking-widest pb-3 border-b border-white/10">
+                // SYSTEM NAVIGATION
+            </div>
+            <a href="#projetos" data-label="01. PROJETOS" class="mobile-nav-link block py-4 border-b border-white/10 font-display text-3xl font-bold uppercase tracking-tight text-white active:text-volt">
+                <span class="font-mono text-xs text-volt mr-3">01</span>Projetos
+            </a>
+            <a href="#experiencia" data-label="02. PERCURSO" class="mobile-nav-link block py-4 border-b border-white/10 font-display text-3xl font-bold uppercase tracking-tight text-white active:text-volt">
+                <span class="font-mono text-xs text-volt mr-3">02</span>Percurso
+            </a>
+            <a href="#stack" data-label="03. STACK" class="mobile-nav-link block py-4 border-b border-white/10 font-display text-3xl font-bold uppercase tracking-tight text-white active:text-volt">
+                <span class="font-mono text-xs text-volt mr-3">03</span>Stack Técnica
+            </a>
+            <a href="#contacto" data-label="04. CONTACTO" class="mobile-nav-link block py-4 border-b border-white/10 font-display text-3xl font-bold uppercase tracking-tight text-white active:text-volt">
+                <span class="font-mono text-xs text-volt mr-3">04</span>Contacto
+            </a>
+            <button type="button" onclick="toggleMobileMenu(); openCVModal();" class="w-full text-left py-4 border-b border-white/10 font-display text-3xl font-bold uppercase tracking-tight text-volt">
+                <span class="font-mono text-xs text-white mr-3">05</span>Currículo (PDF ↓)
+            </button>
+        </div>
+
+        <div class="space-y-3 pt-6 border-t border-white/10">
+            <button type="button" onclick="toggleMobileMenu(); triggerSmartEmail();" class="w-full bg-zinc-900 border border-white/20 text-white font-mono text-xs py-3.5 px-4 text-center active:border-volt">
+                COPIAR EMAIL: pedrodinislopes@gmail.com
+            </button>
+            <a href="https://github.com/pdsl19" target="_blank" rel="noopener noreferrer" class="block w-full bg-volt text-black font-mono text-xs font-bold py-3.5 px-4 text-center">
+                GITHUB // PDSL19 ↗
+            </a>
+        </div>
+    </div>
+
+    <div id="warp-container">
+        <main id="topo">
+            <!-- 2. HERO SECTION -->
+            <section class="relative min-h-[92vh] sm:min-h-screen flex flex-col justify-center pt-24 sm:pt-28 pb-12 sm:pb-16 px-4 sm:px-6 max-w-7xl mx-auto">
+                
+                <div class="absolute top-1/3 right-10 w-64 sm:w-80 h-64 sm:h-80 bg-volt/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+                <div class="hero-reveal flex flex-wrap items-center gap-2 sm:gap-4 mb-5 sm:mb-6 font-mono text-[11px] sm:text-xs text-zinc-400">
+                    <span class="inline-flex items-center gap-2 px-2.5 sm:px-3 py-1 bg-volt/10 border border-volt/30 text-volt">
+                        <span class="w-2 h-2 rounded-full bg-volt animate-ping"></span>
+                        ONLINE // ISPGAYA — RSI
+                    </span>
+                    <span class="hidden sm:inline text-zinc-600">//</span>
+                    <span class="w-full sm:w-auto text-zinc-400">FULL-STACK WEB & INFRAESTRUTURA DE REDES</span>
+                </div>
+
+                <div class="space-y-1 mb-8 sm:mb-10">
+                    <div class="overflow-hidden">
+                        <h1 class="hero-title font-display text-[2.65rem] sm:text-8xl lg:text-[7.2rem] font-bold uppercase tracking-tighter leading-[0.92] sm:leading-[0.9]">
+                            FULL-STACK <span class="text-volt">WEB</span>
+                        </h1>
+                    </div>
+                    <div class="overflow-hidden">
+                        <h2 class="hero-title font-display text-[2.65rem] sm:text-8xl lg:text-[7.2rem] font-bold uppercase tracking-tighter leading-[0.92] sm:leading-[0.9] text-outline">
+                            & NETWORKS.
+                        </h2>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-end pt-6 border-t border-white/10">
+                    <p class="hero-reveal lg:col-span-5 text-zinc-400 text-sm sm:text-lg leading-relaxed">
+                        Desenvolvo aplicações web full-stack, bases de dados relacionais e arquiteturas de rede estruturadas. Código rápido, sistemas estáveis e zero palha visual.
+                    </p>
+
+                    <div class="hero-reveal lg:col-span-7 flex flex-col sm:flex-row flex-wrap lg:justify-end gap-3 sm:gap-4">
+                        <a href="#projetos" data-label="01. PROJETOS" class="nav-link hover-target magnetic w-full sm:w-auto text-center bg-volt text-black font-mono text-xs font-bold uppercase tracking-wider px-7 py-4 hover:bg-white active:scale-[0.98] transition">
+                            Explorar Projetos ↓
+                        </a>
+                        <button type="button" onclick="openCVModal()" class="hover-target magnetic w-full sm:w-auto text-center bg-zinc-900/90 text-volt border border-volt/50 font-mono text-xs font-bold uppercase tracking-wider px-7 py-4 hover:bg-volt hover:text-black active:scale-[0.98] transition">
+                            Currículo / PDF ↓
+                        </button>
+                        <a href="#contacto" data-label="04. CONTACTO" class="nav-link hover-target magnetic w-full sm:w-auto text-center bg-zinc-900/90 text-white border border-white/15 font-mono text-xs uppercase tracking-wider px-7 py-4 hover:border-volt hover:text-volt active:scale-[0.98] transition">
+                            Contacto
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAIXA MARQUEE EM MOVIMENTO -->
+            <div class="py-3.5 sm:py-4 bg-volt text-black font-display font-bold uppercase text-lg sm:text-2xl tracking-tight border-y border-white/10 overflow-hidden select-none">
+                <div class="marquee-track">
+                    <span class="mx-6">FULL-STACK DEVELOPMENT</span> •
+                    <span class="mx-6">CISCO NETWORK ARCHITECTURE</span> •
+                    <span class="mx-6">MYSQL & MARIADB</span> •
+                    <span class="mx-6">PHP & JAVASCRIPT</span> •
+                    <span class="mx-6">TCP/IP & SUBNETTING</span> •
+                    <span class="mx-6">VILA NOVA DE GAIA, PT</span> •
+                    <span class="mx-6">FULL-STACK DEVELOPMENT</span> •
+                    <span class="mx-6">CISCO NETWORK ARCHITECTURE</span> •
+                    <span class="mx-6">MYSQL & MARIADB</span> •
+                    <span class="mx-6">PHP & JAVASCRIPT</span> •
+                    <span class="mx-6">TCP/IP & SUBNETTING</span> •
+                    <span class="mx-6">VILA NOVA DE GAIA, PT</span> •
+                </div>
+            </div>
+
+            <!-- 3. PROJETOS -->
+            <section id="projetos" class="py-16 sm:py-28 px-4 sm:px-6 max-w-7xl mx-auto">
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-10 sm:mb-16 gap-3">
+                    <div>
+                        <span class="font-mono text-xs text-volt uppercase tracking-widest">// 01. WORK SHOWCASE</span>
+                        <h2 class="section-heading font-display text-3xl sm:text-6xl font-bold uppercase tracking-tighter mt-2" data-original="PROJETOS REAIS">
+                            PROJETOS <span class="text-outline">REAIS</span>
+                        </h2>
+                    </div>
+                    <span class="font-mono text-[11px] sm:text-xs text-zinc-500">INTERACTIVE TELEMETRY CARDS</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+
+                    <!-- Projeto 01: ISPGUIA -->
+                    <article class="project-card spotlight-card hover-target lg:col-span-12 group bg-zinc-900/50 border border-white/10 hover:border-volt/60 p-6 sm:p-12 transition-all duration-300">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                            <div class="lg:col-span-7 flex flex-col justify-between h-full">
+                                <div>
+                                    <div class="flex flex-wrap items-center gap-2 sm:gap-3 font-mono text-[11px] sm:text-xs mb-5 sm:mb-6">
+                                        <span class="bg-volt text-black font-bold px-2.5 py-1">01 // EM PRODUÇÃO</span>
+                                        <span class="text-zinc-400">PORTAL ACADÉMICO</span>
+                                    </div>
+                                    <h3 class="font-display text-2xl sm:text-5xl font-bold uppercase tracking-tight mb-3 sm:mb-4 group-hover:text-volt transition">
+                                        ISPGUIA — Student Hub
+                                    </h3>
+                                    <p class="text-zinc-400 text-sm sm:text-base leading-relaxed mb-6 sm:mb-8">
+                                        Plataforma web interativa criada para os estudantes do ISPGAYA com horários, guias académicos e recursos do campus. Equipada com monitorização de tráfego e métricas de utilização em tempo real via GoatCounter Analytics.
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <div class="flex flex-wrap gap-2 font-mono text-[11px] sm:text-xs text-zinc-300 mb-6 sm:mb-8">
+                                        <span class="bg-black/80 px-3 py-1.5 border border-white/10">HTML5</span>
+                                        <span class="bg-black/80 px-3 py-1.5 border border-white/10">CSS3</span>
+                                        <span class="bg-black/80 px-3 py-1.5 border border-white/10">JavaScript</span>
+                                        <span class="bg-black/80 px-3 py-1.5 border border-white/10">GoatCounter Analytics</span>
+                                        <span class="bg-black/80 px-3 py-1.5 border border-white/10">Git</span>
+                                    </div>
+
+                                    <a href="https://github.com/pdsl19" target="_blank" rel="noopener noreferrer" 
+                                       class="inline-flex items-center gap-2 font-mono text-xs text-volt uppercase tracking-wider group-hover:translate-x-2 transition py-1">
+                                        Inspecionar Repositório no GitHub →
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Monitor Técnico de Arquitetura -->
+                            <div class="lg:col-span-5 bg-black/95 border border-white/10 p-5 sm:p-6 font-mono text-xs relative overflow-hidden group-hover:border-volt/40 transition">
+                                <div class="flex items-center justify-between pb-3 mb-4 border-b border-white/10 text-zinc-500 text-[11px] sm:text-xs">
+                                    <span>SYS_MONITOR // ISPGUIA.NODE</span>
+                                    <span class="text-volt flex items-center gap-1.5">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-volt animate-ping"></span>
+                                        ACTIVE
+                                    </span>
+                                </div>
+
+                                <div class="space-y-4 text-zinc-400">
+                                    <div>
+                                        <div class="flex justify-between text-[10px] sm:text-[11px] mb-1">
+                                            <span>CORE_MODULES (HORÁRIOS & GUIAS)</span>
+                                            <span class="text-volt">ONLINE</span>
+                                        </div>
+                                        <div class="w-full bg-zinc-900 h-1.5 overflow-hidden">
+                                            <div class="bg-volt h-full w-full"></div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="flex justify-between text-[10px] sm:text-[11px] mb-1">
+                                            <span>GOATCOUNTER_TELEMETRY</span>
+                                            <span class="text-volt">TRACKING</span>
+                                        </div>
+                                        <div class="w-full bg-zinc-900 h-1.5 overflow-hidden">
+                                            <div class="bg-volt h-full w-[88%] animate-pulse"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-2 pt-2">
+                                        <div class="bg-zinc-950 border border-white/5 p-2.5">
+                                            <div class="text-[10px] text-zinc-500">TARGET</div>
+                                            <div class="text-white font-bold mt-0.5 text-[11px] sm:text-xs">ISPGAYA Campus</div>
+                                        </div>
+                                        <div class="bg-zinc-950 border border-white/5 p-2.5">
+                                            <div class="text-[10px] text-zinc-500">ARCHITECTURE</div>
+                                            <div class="text-volt font-bold mt-0.5 text-[11px] sm:text-xs">Zero-Bloat Web</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Projeto 02: PAP -->
+                    <article class="project-card spotlight-card hover-target lg:col-span-6 group bg-zinc-900/50 border border-white/10 hover:border-volt/60 p-6 sm:p-10 flex flex-col justify-between transition-all duration-300">
+                        <div>
+                            <div class="flex items-center justify-between font-mono text-[11px] sm:text-xs mb-5 sm:mb-6">
+                                <span class="text-volt border border-volt/40 px-2.5 py-1">02 // FULL-STACK PAP</span>
+                                <a href="https://github.com/pdsl19" target="_blank" rel="noopener noreferrer" class="text-zinc-400 hover:text-volt py-1">CÓDIGO ↗</a>
+                            </div>
+
+                            <h3 class="font-display text-2xl sm:text-4xl font-bold uppercase tracking-tight mb-3 sm:mb-4 group-hover:text-volt transition">
+                                Sistema de Gestão Integrado
+                            </h3>
+
+                            <p class="text-zinc-400 text-sm sm:text-base leading-relaxed mb-6 sm:mb-8">
+                                Aplicação web desenvolvida para o Centro Social Paroquial Nossa Senhora da Boavista. Gestão completa de utilizadores, permissões e registos com arquitetura relacional em MySQL/MariaDB.
+                            </p>
+                        </div>
+
+                        <div class="flex flex-wrap gap-2 font-mono text-[11px] sm:text-xs text-zinc-300 pt-5 sm:pt-6 border-t border-white/10">
+                            <span class="bg-black/80 px-3 py-1.5 border border-white/10">PHP</span>
+                            <span class="bg-black/80 px-3 py-1.5 border border-white/10">MySQL / MariaDB</span>
+                            <span class="bg-black/80 px-3 py-1.5 border border-white/10">JavaScript</span>
+                            <span class="bg-black/80 px-3 py-1.5 border border-white/10">Auth & CRUD</span>
+                        </div>
+                    </article>
+
+                    <!-- Projeto 03: Redes -->
+                    <article class="project-card spotlight-card hover-target lg:col-span-6 group bg-zinc-900/50 border border-white/10 hover:border-volt/60 p-6 sm:p-10 flex flex-col justify-between transition-all duration-300">
+                        <div>
+                            <div class="flex items-center justify-between font-mono text-[11px] sm:text-xs mb-5 sm:mb-6">
+                                <span class="text-volt border border-volt/40 px-2.5 py-1">03 // NETWORKING</span>
+                                <a href="https://github.com/pdsl19" target="_blank" rel="noopener noreferrer" class="text-zinc-400 hover:text-volt py-1">REPOSITÓRIO ↗</a>
+                            </div>
+
+                            <h3 class="font-display text-2xl sm:text-4xl font-bold uppercase tracking-tight mb-3 sm:mb-4 group-hover:text-volt transition">
+                                Topologias LAN & Subnetting
+                            </h3>
+
+                            <p class="text-zinc-400 text-sm sm:text-base leading-relaxed mb-6 sm:mb-8">
+                                Desenho e simulação de infraestruturas de rede estruturadas. Cálculo de máscaras e sub-redes (VLSM), segmentação por VLANs e configuração de routers e switches Cisco via linha de comandos (IOS CLI).
+                            </p>
+                        </div>
+
+                        <div class="flex flex-wrap gap-2 font-mono text-[11px] sm:text-xs text-zinc-300 pt-5 sm:pt-6 border-t border-white/10">
+                            <span class="bg-black/80 px-3 py-1.5 border border-white/10">Cisco Packet Tracer</span>
+                            <span class="bg-black/80 px-3 py-1.5 border border-white/10">IOS CLI</span>
+                            <span class="bg-black/80 px-3 py-1.5 border border-white/10">VLSM / Subnetting</span>
+                            <span class="bg-black/80 px-3 py-1.5 border border-white/10">Routing & Switching</span>
+                        </div>
+                    </article>
+
+                </div>
+            </section>
+
+            <!-- 4. PERCURSO -->
+            <section id="experiencia" class="py-16 sm:py-28 px-4 sm:px-6 max-w-7xl mx-auto border-t border-white/10">
+                <div class="mb-10 sm:mb-16">
+                    <span class="font-mono text-xs text-volt uppercase tracking-widest">// 02. TRACK RECORD</span>
+                    <h2 class="section-heading font-display text-3xl sm:text-6xl font-bold uppercase tracking-tighter mt-2" data-original="EXPERIÊNCIA & FORMAÇÃO">
+                        EXPERIÊNCIA & <span class="text-outline">FORMAÇÃO</span>
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12">
+
+                    <div class="gsap-fade-up bg-zinc-900/30 border border-white/10 p-6 sm:p-10 relative">
+                        <div class="font-mono text-xs text-volt mb-2">2024 — 2025 // 400 HORAS FCT</div>
+                        <h3 class="font-display text-2xl sm:text-3xl font-bold uppercase mb-1">Printgal</h3>
+                        <p class="font-mono text-xs text-zinc-400 mb-6">Gestão Web, Catálogo & Bases de Dados</p>
+
+                        <ul class="space-y-3 text-sm text-zinc-300">
+                            <li class="flex items-start gap-3">
+                                <span class="text-volt font-mono font-bold">01.</span>
+                                <span>Gestão e atualização de conteúdos web em ambiente de produção empresarial.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="text-volt font-mono font-bold">02.</span>
+                                <span>Auditoria técnica e estruturação de catálogos de produtos.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <span class="text-volt font-mono font-bold">03.</span>
+                                <span>Operações diretas e manutenção de integridade em bases de dados.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="gsap-fade-up bg-zinc-900/30 border border-white/10 p-6 sm:p-8 relative">
+                            <div class="flex flex-wrap items-center justify-between gap-2 font-mono text-xs text-volt mb-2">
+                                <span>2025 — PRESENTE</span>
+                                <span class="px-2 py-0.5 bg-volt/10 border border-volt/30">EM CURSO</span>
+                            </div>
+                            <h3 class="font-display text-xl sm:text-2xl font-bold uppercase mb-1">CTeSP em Redes e Sistemas Informáticos</h3>
+                            <p class="font-mono text-xs text-zinc-400 mb-3">ISPGAYA — Vila Nova de Gaia</p>
+                            <p class="text-sm text-zinc-400">
+                                Arquitetura de redes, routing/switching, administração de sistemas e desenvolvimento de projetos técnicos em equipa.
+                            </p>
+                        </div>
+
+                        <div class="gsap-fade-up bg-zinc-900/30 border border-white/10 p-6 sm:p-8 relative">
+                            <div class="flex flex-wrap items-center justify-between gap-2 font-mono text-xs text-zinc-400 mb-2">
+                                <span>CONCLUÍDO EM 2025</span>
+                                <span class="text-volt">MÉDIA: 16 VALORES</span>
+                            </div>
+                            <h3 class="font-display text-xl sm:text-2xl font-bold uppercase mb-1">Tecnologias e Sistemas de Informação</h3>
+                            <p class="font-mono text-xs text-zinc-400 mb-3">Colégio de Gaia</p>
+                            <p class="text-sm text-zinc-400">
+                                Programação, desenvolvimento web full-stack, modelação de bases de dados relacionais e montagem/manutenção de hardware.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- 5. STACK -->
+            <section id="stack" class="py-16 sm:py-28 px-4 sm:px-6 max-w-7xl mx-auto border-t border-white/10">
+                <div class="mb-10 sm:mb-16">
+                    <span class="font-mono text-xs text-volt uppercase tracking-widest">// 03. TELEMETRY & TOOLS</span>
+                    <h2 class="section-heading font-display text-3xl sm:text-6xl font-bold uppercase tracking-tighter mt-2" data-original="ARSENAL TÉCNICO">
+                        ARSENAL <span class="text-outline">TÉCNICO</span>
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="gsap-fade-up bg-zinc-900/40 border border-white/10 p-6 sm:p-8">
+                        <div class="font-mono text-xs text-volt mb-2">[01 // DEV]</div>
+                        <h3 class="font-display text-xl sm:text-2xl font-bold uppercase mb-5 sm:mb-6">Web & Código</h3>
+                        <div class="flex flex-wrap gap-2 sm:gap-2.5 font-mono text-xs">
+                            <span class="hover-target px-3.5 py-2 bg-black border border-white/15 hover:bg-volt hover:text-black hover:border-volt transition">HTML5 / CSS3</span>
+                            <span class="hover-target px-3.5 py-2 bg-black border border-white/15 hover:bg-volt hover:text-black hover:border-volt transition">JavaScript</span>
+                            <span class="hover-target px-3.5 py-2 bg-black border border-white/15 hover:bg-volt hover:text-black hover:border-volt transition">PHP</span>
+                            <span class="hover-target px-3.5 py-2 bg-black border border-white/15 hover:bg-volt hover:text-black hover:border-volt transition">Python</span>
+                            <span class="hover-target px-3.5 py-2 bg-black border border-white/15 hover:bg-volt hover:text-black hover:border-volt transition">Java</span>
+                            <span class="hover-target px-3.5 py-2 bg-black border border-white/15 hover:bg-volt hover:text-black hover:border-volt transition">C</span>
+                        </div>
+                    </div>
+
+                    <div class="gsap-fade-up bg-zinc-900/40 border border-white/10 p-6 sm:p-8">
+                        <div class="font-mono text-xs text-volt mb-2">[02 // DATA]</div>
+                        <h3 class="font-display text-xl sm:text-2xl font-bold uppercase mb-5 sm:mb-6">Dados & Workflow</h3>
+                        <div class="flex flex-wrap gap-2 sm:gap-2.5 font-mono text-xs">
+                            <span class="hover-target px-3.5 py-2 bg-black border border-white/15 hover:bg-volt hover:text-black hover:border-volt transition">MySQL</span>
+                            <span class="hover-target px-3.5 py-2 bg-black border border-white/15 hover:bg-volt hover:text-black hover:border-volt transition">MariaDB</span>
+                            <span class="hover-target px-3.5 py-2 bg-black border border-white/15 hover:bg-volt hover:text-black hover:border-volt transition">Git & GitHub</span>
+                            <span class="hover-target px-3.5 py-2 bg-black border border-white/15 hover:bg-volt hover:text-black hover:border-volt transition">VS Code</span>
+                            <span class="hover-target px-3.5 py-2 bg-black border border-white/15 hover:bg-volt hover:text-black hover:border-volt transition">XAMPP</span>
+                            <span class="hover-target px-3.5 py-2 bg-black border border-white/15 hover:bg-volt hover:text-black hover:border-volt transition">GoatCounter</span>
+                        </div>
+                    </div>
+
+                    <div class="gsap-fade-up bg-zinc-900/40 border border-white/10 p-6 sm:p-8">
+                        <div class="font-mono text-xs text-volt mb-2">[03 // INFRA]</div>
+                        <h3 class="font-display text-xl sm:text-2xl font-bold uppercase mb-5 sm:mb-6">Redes & Sistemas</h3>
+                        <div class="flex flex-wrap gap-2 sm:gap-2.5 font-mono text-xs">
+                            <span class="hover-target px-3.5 py-2 bg-black border border-white/15 hover:bg-volt hover:text-black hover:border-volt transition">Cisco Packet Tracer</span>
+                            <span class="hover-target px-3.5 py-2 bg-black border border-white/15 hover:bg-volt hover:text-black hover:border-volt transition">TCP/IP & VLSM</span>
+                            <span class="hover-target px-3.5 py-2 bg-black border border-white/15 hover:bg-volt hover:text-black hover:border-volt transition">Routing & Switching</span>
+                            <span class="hover-target px-3.5 py-2 bg-black border border-white/15 hover:bg-volt hover:text-black hover:border-volt transition">VirtualBox</span>
+                            <span class="hover-target px-3.5 py-2 bg-black border border-white/15 hover:bg-volt hover:text-black hover:border-volt transition">PC Hardware</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. CONTACTO -->
+            <section id="contacto" class="py-16 sm:py-28 px-4 sm:px-6 max-w-7xl mx-auto border-t border-white/10">
+                <div class="bg-zinc-900/60 border border-white/15 p-6 sm:p-16 relative overflow-hidden">
+                    <span class="font-mono text-xs text-volt uppercase tracking-widest">// 04. NEXT STEP</span>
+                    <h2 class="section-heading font-display text-3xl sm:text-7xl font-bold uppercase tracking-tighter mt-3 mb-4 sm:mb-6" data-original="PRONTO PARA COLABORAR?">
+                        PRONTO PARA <span class="text-volt">COLABORAR?</span>
+                    </h2>
+                    <p class="text-zinc-400 max-w-xl text-sm sm:text-lg mb-8 sm:mb-10">
+                        Disponível para projetos web, infraestrutura de redes ou oportunidades técnicas no Porto e Vila Nova de Gaia.
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row flex-wrap gap-3.5 sm:gap-4">
+                        <button type="button" id="smart-email-btn" onclick="triggerSmartEmail()"
+                                class="hover-target magnetic w-full sm:w-auto text-center bg-volt text-black font-mono text-xs sm:text-sm font-bold uppercase px-5 sm:px-8 py-4 hover:bg-white active:scale-[0.98] transition break-all">
+                            <span id="email-btn-label">pedrodinislopes@gmail.com [COPIAR / ENVIAR]</span>
+                        </button>
+
+                        <a href="pdfs/CV_PedroLopes.pdf" download="CV_PedroLopes.pdf"
+                           class="hover-target magnetic w-full sm:w-auto text-center bg-zinc-950 text-volt border border-volt/50 font-mono text-xs sm:text-sm font-bold uppercase px-6 sm:px-8 py-4 hover:bg-volt hover:text-black active:scale-[0.98] transition">
+                            Download Direto CV (PDF) ↓
+                        </a>
+
+                        <a href="https://github.com/pdsl19" target="_blank" rel="noopener noreferrer" 
+                           class="hover-target magnetic w-full sm:w-auto text-center bg-black text-white border border-white/20 font-mono text-xs sm:text-sm uppercase px-6 sm:px-8 py-4 hover:border-volt hover:text-volt active:scale-[0.98] transition">
+                            GitHub // pdsl19 ↗
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="border-t border-white/10 py-8 px-4 sm:px-6">
+            <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-[11px] sm:text-xs text-zinc-500 text-center sm:text-left">
+                <div>© 2026 PEDRO DINIS LOPES // VILA NOVA DE GAIA</div>
+                <div class="text-volt">ENGINE: GSAP + LENIS SMOOTH SCROLL</div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- MODAL DO CURRÍCULO (pdfs/CV_PedroLopes.pdf) -->
+    <div id="cv-modal" class="fixed inset-0 z-[90] hidden items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md">
+        <div id="cv-modal-box" class="bg-zinc-950 border border-volt/50 max-w-5xl w-full p-5 sm:p-8 relative shadow-[0_0_60px_rgba(210,255,0,0.12)] flex flex-col max-h-[92vh] sm:h-[90vh]">
+            
+            <div class="flex flex-wrap items-center justify-between gap-4 pb-5 mb-5 border-b border-white/10 shrink-0">
+                <div>
+                    <span class="font-mono text-[11px] sm:text-xs text-volt uppercase tracking-widest">// FILE: pdfs/CV_PedroLopes.pdf</span>
+                    <h3 class="font-display text-xl sm:text-3xl font-bold uppercase mt-1">CURRÍCULO — PEDRO LOPES</h3>
+                </div>
+                <div class="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
+                    <a href="pdfs/CV_PedroLopes.pdf" download="CV_PedroLopes.pdf" 
+                       class="hover-target flex-1 sm:flex-initial text-center bg-volt text-black font-mono text-xs font-bold uppercase px-4 sm:px-5 py-3 hover:bg-white transition">
+                        Descarregar PDF ↓
+                    </a>
+                    <a href="pdfs/CV_PedroLopes.pdf" target="_blank" rel="noopener noreferrer"
+                       class="hover-target flex-1 sm:flex-initial text-center bg-zinc-900 text-white border border-white/20 font-mono text-xs uppercase px-4 py-3 hover:border-volt hover:text-volt transition">
+                        Abrir Ecrã Inteiro ↗
+                    </a>
+                    <button type="button" onclick="closeCVModal()" 
+                            class="hover-target w-full sm:w-auto bg-zinc-900 text-zinc-400 border border-white/15 font-mono text-xs uppercase px-4 py-3 hover:border-volt hover:text-volt transition">
+                        [ESC / Fechar]
+                    </button>
+                </div>
+            </div>
+
+            <!-- Iframe completo em PC -->
+            <div class="hidden md:block w-full flex-1 bg-zinc-900 border border-white/10 overflow-hidden relative">
+                <iframe src="pdfs/CV_PedroLopes.pdf" class="w-full h-full" title="Currículo Pedro Lopes"></iframe>
+            </div>
+
+            <!-- Painel Nativo Mobile -->
+            <div class="md:hidden bg-zinc-900/60 border border-white/10 p-5 space-y-4 font-mono text-xs">
+                <div class="flex items-center justify-between text-volt border-b border-white/10 pb-3">
+                    <span>DOCUMENT_STATUS: READY</span>
+                    <span>FORMATO: PDF A4</span>
+                </div>
+                <p class="font-sans text-sm text-zinc-300 leading-relaxed">
+                    Para visualizar sem cortes no telemóvel, abre o currículo no leitor nativo ou guarda o ficheiro PDF diretamente:
+                </p>
+                <div class="space-y-2.5 pt-2">
+                    <a href="pdfs/CV_PedroLopes.pdf" target="_blank" rel="noopener noreferrer"
+                       class="block w-full bg-volt text-black font-bold uppercase py-3.5 text-center">
+                        LER CURRÍCULO NO ECRÃ INTEIRO ↗
+                    </a>
+                    <a href="pdfs/CV_PedroLopes.pdf" download="CV_PedroLopes.pdf"
+                       class="block w-full bg-black text-white border border-white/20 uppercase py-3.5 text-center">
+                        GUARDAR FICHEIRO PDF NO TELEMÓVEL ↓
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+        const isDesktopPointer = window.matchMedia('(pointer: fine)').matches;
+
+        const lenis = new Lenis({ duration: 1.15, smoothWheel: true });
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => {
+            lenis.raf(time * 1000);
+        });
+        gsap.ticker.lagSmoothing(0);
+
+        let emailToastTimer;
+        function triggerSmartEmail() {
+            const email = 'pedrodinislopes@gmail.com';
+            const btnLabel = document.getElementById('email-btn-label');
+            const toast = document.getElementById('email-toast');
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(email);
+            } else {
+                const tempInput = document.createElement('input');
+                tempInput.value = email;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+            }
+
+            if (btnLabel) {
+                btnLabel.textContent = 'EMAIL COPIADO! // ESCOLHE COMO ENVIAR';
+                setTimeout(() => {
+                    btnLabel.textContent = 'pedrodinislopes@gmail.com [COPIAR / ENVIAR]';
+                }, 4500);
+            }
+
+            toast.classList.remove('opacity-0', 'translate-y-6', 'pointer-events-none');
+            toast.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+
+            clearTimeout(emailToastTimer);
+            emailToastTimer = setTimeout(hideEmailToast, 8000);
+        }
+
+        function hideEmailToast() {
+            const toast = document.getElementById('email-toast');
+            toast.classList.add('opacity-0', 'translate-y-6', 'pointer-events-none');
+            toast.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+        }
+
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        let isMobileMenuOpen = false;
+
+        function toggleMobileMenu() {
+            isMobileMenuOpen = !isMobileMenuOpen;
+            if (isMobileMenuOpen) {
+                mobileMenu.classList.remove('hidden');
+                mobileMenu.classList.add('flex');
+                mobileMenuBtn.textContent = 'FECHAR ×';
+                lenis.stop();
+                gsap.fromTo(mobileMenu, { opacity: 0, y: -15 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' });
+            } else {
+                mobileMenuBtn.textContent = 'MENU +';
+                gsap.to(mobileMenu, {
+                    opacity: 0,
+                    y: -15,
+                    duration: 0.25,
+                    ease: 'power2.in',
+                    onComplete: () => {
+                        mobileMenu.classList.add('hidden');
+                        mobileMenu.classList.remove('flex');
+                        lenis.start();
+                    }
+                });
+            }
+        }
+
+        const cvModal = document.getElementById('cv-modal');
+        const cvModalBox = document.getElementById('cv-modal-box');
+
+        function openCVModal() {
+            cvModal.classList.remove('hidden');
+            cvModal.classList.add('flex');
+            lenis.stop();
+            gsap.fromTo(cvModalBox, 
+                { y: 40, opacity: 0, scale: 0.96 }, 
+                { y: 0, opacity: 1, scale: 1, duration: 0.4, ease: 'expo.out' }
+            );
+        }
+
+        function closeCVModal() {
+            gsap.to(cvModalBox, {
+                y: 20,
+                opacity: 0,
+                scale: 0.96,
+                duration: 0.25,
+                ease: 'power2.in',
+                onComplete: () => {
+                    cvModal.classList.add('hidden');
+                    cvModal.classList.remove('flex');
+                    lenis.start();
+                }
+            });
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (!cvModal.classList.contains('hidden')) closeCVModal();
+                if (isMobileMenuOpen) toggleMobileMenu();
+            }
+        });
+
+        cvModal.addEventListener('click', (e) => {
+            if (e.target === cvModal) closeCVModal();
+        });
+
+        window.addEventListener('scroll', () => {
+            const winScroll = document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('scroll-progress').style.width = scrolled + '%';
+        });
+
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789//_#';
+        function scrambleText(element) {
+            if (!element) return;
+            const originalHTML = element.innerHTML;
+            const plainText = element.getAttribute('data-original') || element.innerText;
+            let iteration = 0;
+            
+            clearInterval(element.scrambleInterval);
+            element.scrambleInterval = setInterval(() => {
+                element.innerText = plainText
+                    .split('')
+                    .map((letter, index) => {
+                        if (letter === ' ') return ' ';
+                        if (index < iteration) return plainText[index];
+                        return chars[Math.floor(Math.random() * chars.length)];
+                    })
+                    .join('');
+
+                if (iteration >= plainText.length) {
+                    clearInterval(element.scrambleInterval);
+                    element.innerHTML = originalHTML;
+                }
+                iteration += 1.5;
+            }, 25);
+        }
+
+        const warpContainer = document.getElementById('warp-container');
+        const navHud = document.getElementById('nav-hud');
+        const navHudText = document.getElementById('nav-hud-text');
+
+        function navigateToSection(targetId, targetLabel) {
+            const targetEl = document.querySelector(targetId);
+            if (!targetEl) return;
+
+            navHudText.textContent = `ROUTING // ${targetLabel}`;
+            gsap.killTweensOf(navHud);
+            gsap.to(navHud, { opacity: 1, y: 0, duration: 0.25, ease: 'power2.out' });
+
+            gsap.to(warpContainer, {
+                scale: isDesktopPointer ? 0.965 : 0.985,
+                skewY: isDesktopPointer ? 1.2 : 0.5,
+                filter: 'brightness(0.85)',
+                duration: 0.35,
+                ease: 'power2.in'
+            });
+
+            lenis.stop();
+            gsap.to(window, {
+                scrollTo: { y: targetEl, offsetY: isDesktopPointer ? 70 : 60 },
+                duration: 1.15,
+                ease: 'expo.inOut',
+                onComplete: () => {
+                    lenis.start();
+
+                    gsap.to(warpContainer, {
+                        scale: 1,
+                        skewY: 0,
+                        filter: 'brightness(1)',
+                        duration: 0.45,
+                        ease: 'expo.out'
+                    });
+
+                    gsap.to(navHud, { opacity: 0, y: -8, duration: 0.3, delay: 0.25 });
+
+                    const heading = targetEl.querySelector('.section-heading');
+                    if (heading) scrambleText(heading);
+                }
+            });
+        }
+
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                navigateToSection(link.getAttribute('href'), link.getAttribute('data-label') || 'SECTION');
+            });
+        });
+
+        document.querySelectorAll('.mobile-nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href');
+                const targetLabel = link.getAttribute('data-label') || 'SECTION';
+                if (isMobileMenuOpen) toggleMobileMenu();
+                setTimeout(() => navigateToSection(targetId, targetLabel), 180);
+            });
+        });
+
+        ['#projetos', '#experiencia', '#stack', '#contacto'].forEach(id => {
+            ScrollTrigger.create({
+                trigger: id,
+                start: 'top center',
+                end: 'bottom center',
+                onToggle: self => {
+                    const link = document.querySelector(`header .nav-link[href="${id}"]`);
+                    if (link) {
+                        link.classList.toggle('text-volt', self.isActive);
+                    }
+                }
+            });
+        });
+
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('pt-PT', { hour12: false });
+            const el = document.getElementById('live-clock');
+            if (el) el.textContent = `${timeStr} VNG // PT`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        if (isDesktopPointer) {
+            const dot = document.getElementById('cursor-dot');
+            const ring = document.getElementById('cursor-ring');
+
+            window.addEventListener('mousemove', (e) => {
+                gsap.to(dot, { x: e.clientX, y: e.clientY, duration: 0.05 });
+                gsap.to(ring, { x: e.clientX, y: e.clientY, duration: 0.22, ease: 'power2.out' });
+            });
+
+            document.querySelectorAll('.hover-target').forEach(el => {
+                el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+                el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+            });
+
+            document.querySelectorAll('.magnetic').forEach(btn => {
+                btn.addEventListener('mousemove', (e) => {
+                    const rect = btn.getBoundingClientRect();
+                    const x = e.clientX - rect.left - rect.width / 2;
+                    const y = e.clientY - rect.top - rect.height / 2;
+                    gsap.to(btn, { x: x * 0.25, y: y * 0.25, duration: 0.3 });
+                });
+                btn.addEventListener('mouseleave', () => {
+                    gsap.to(btn, { x: 0, y: 0, duration: 0.4, ease: 'elastic.out(1, 0.4)' });
+                });
+            });
+
+            document.querySelectorAll('.project-card').forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    card.style.setProperty('--mouse-x', `${x}px`);
+                    card.style.setProperty('--mouse-y', `${y}px`);
+
+                    const rotateY = ((x / rect.width) - 0.5) * 6;
+                    const rotateX = ((y / rect.height) - 0.5) * -6;
+                    gsap.to(card, { rotateX, rotateY, transformPerspective: 1000, duration: 0.4, ease: 'power2.out' });
+                });
+                card.addEventListener('mouseleave', () => {
+                    gsap.to(card, { rotateX: 0, rotateY: 0, duration: 0.6, ease: 'power3.out' });
+                });
+            });
+        }
+
+        let counter = { val: 0 };
+        const tl = gsap.timeline();
+
+        tl.to(counter, {
+            val: 100,
+            duration: 1.3,
+            ease: 'power3.inOut',
+            onUpdate: () => {
+                const v = Math.floor(counter.val);
+                document.getElementById('loader-counter').textContent = (v < 10 ? '0' : '') + v + '%';
+                document.getElementById('loader-bar').style.width = v + '%';
+            }
+        })
+        .to('#preloader', {
+            yPercent: -100,
+            duration: 0.85,
+            ease: 'expo.inOut'
+        })
+        .from('.hero-title', {
+            yPercent: 110,
+            stagger: 0.12,
+            duration: 1,
+            ease: 'expo.out'
+        }, '-=0.4')
+        .from('.hero-reveal', {
+            y: 30,
+            opacity: 0,
+            stagger: 0.1,
+            duration: 0.8,
+            ease: 'power3.out'
+        }, '-=0.6');
+
+        gsap.utils.toArray('.gsap-fade-up').forEach(item => {
+            gsap.from(item, {
+                scrollTrigger: {
+                    trigger: item,
+                    start: 'top 88%',
+                },
+                y: 40,
+                opacity: 0,
+                duration: 0.8,
+                ease: 'power3.out'
+            });
+        });
+
+        gsap.utils.toArray('.project-card').forEach((card, i) => {
+            gsap.from(card, {
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top 90%',
+                },
+                y: 50,
+                opacity: 0,
+                duration: 0.85,
+                delay: isDesktopPointer ? i * 0.1 : 0,
+                ease: 'power3.out'
+            });
+        });
+    </script>
+</body>
+</html>
