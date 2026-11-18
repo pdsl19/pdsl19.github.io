@@ -1909,6 +1909,162 @@
                 }, 1800);
             }
         });
+
+        // 18. UPGRADE 08: SIMULADOR ISPGUIA.NODE + MODO BLUEPRINT CAD (KEY B) + DEVTOOLS CONSOLE BANNER
+
+        // 1. Tornar o Monitor do Projeto 01 (ISPGUIA) Interativo
+        if (allProjectCards[0]) {
+            const monitorBox = allProjectCards[0].querySelector('.lg\\:col-span-5');
+            if (monitorBox) {
+                const headerFlex = monitorBox.querySelector('.flex.items-center.justify-between');
+                const barsContainer = monitorBox.querySelector('.space-y-4');
+
+                if (headerFlex && barsContainer) {
+                    headerFlex.innerHTML = `
+                        <span>SYS_MONITOR // ISPGUIA.NODE</span>
+                        <button type="button" id="ispguia-sim-btn" class="text-volt hover:underline font-bold">[CYCLE TELEMETRY ↵]</button>
+                    `;
+
+                    const ispModes = [
+                        {
+                            m1Name: 'CORE_MODULES (HORÁRIOS & GUIAS)', m1Status: 'READY // 100%', m1Width: '100%',
+                            m2Name: 'GOATCOUNTER_TELEMETRY', m2Status: 'CONFIGURED', m2Width: '88%',
+                            box1Label: 'TARGET', box1Val: 'ISPGAYA Campus',
+                            box2Label: 'ARCHITECTURE', box2Val: 'Zero-Bloat Web'
+                        },
+                        {
+                            m1Name: 'GOATCOUNTER // ACTIVE SESSIONS', m1Status: 'LIVE STREAM', m1Width: '94%',
+                            m2Name: 'CACHE_HIT_RATIO (STATIC ASSETS)', m2Status: '99.4% HIT', m2Width: '99%',
+                            box1Label: 'AVG LOAD TIME', box1Val: '0.18s (FCP)',
+                            box2Label: 'PRIVACY ENGINE', box2Val: 'Zero-Cookies'
+                        },
+                        {
+                            m1Name: 'STUDENT_HUB // SCHEDULE PARSER', m1Status: 'SYNCED', m1Width: '100%',
+                            m2Name: 'MOBILE_VIEWPORT_OPTIMIZATION', m2Status: 'PASSED', m2Width: '96%',
+                            box1Label: 'DEPLOYMENT', box1Val: 'Git / CI Ready',
+                            box2Label: 'MAINTAINER', box2Val: 'Pedro Lopes'
+                        }
+                    ];
+                    let ispIdx = 0;
+
+                    const simBtn = document.getElementById('ispguia-sim-btn');
+                    simBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        playTelemetrySound('click');
+                        ispIdx = (ispIdx + 1) % ispModes.length;
+                        const d = ispModes[ispIdx];
+
+                        barsContainer.innerHTML = `
+                            <div>
+                                <div class="flex justify-between text-[10px] sm:text-[11px] mb-1">
+                                    <span>${d.m1Name}</span>
+                                    <span class="text-volt font-bold">${d.m1Status}</span>
+                                </div>
+                                <div class="w-full bg-zinc-900 h-1.5 overflow-hidden">
+                                    <div class="bg-volt h-full transition-all duration-500" style="width: ${d.m1Width}"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-[10px] sm:text-[11px] mb-1">
+                                    <span>${d.m2Name}</span>
+                                    <span class="text-volt font-bold">${d.m2Status}</span>
+                                </div>
+                                <div class="w-full bg-zinc-900 h-1.5 overflow-hidden">
+                                    <div class="bg-volt h-full transition-all duration-500" style="width: ${d.m2Width}"></div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 pt-2">
+                                <div class="bg-zinc-950 border border-white/10 p-2.5">
+                                    <div class="text-[10px] text-zinc-500">${d.box1Label}</div>
+                                    <div class="text-white font-bold mt-0.5 text-[11px] sm:text-xs">${d.box1Val}</div>
+                                </div>
+                                <div class="bg-zinc-950 border border-white/10 p-2.5">
+                                    <div class="text-[10px] text-zinc-500">${d.box2Label}</div>
+                                    <div class="text-volt font-bold mt-0.5 text-[11px] sm:text-xs">${d.box2Val}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            }
+        }
+
+        // 2. Modo Blueprint CAD (Wireframe de Engenharia — Tecla B ou Botão na Dock)
+        const bpStyle = document.createElement('style');
+        bpStyle.innerHTML = `
+            body.blueprint-mode * {
+                outline: 1px dashed rgba(var(--volt-rgb, 210 255 0), 0.28) !important;
+            }
+            body.blueprint-mode section {
+                position: relative;
+            }
+            body.blueprint-mode section::after {
+                content: 'CAD_NODE // ' attr(id);
+                position: absolute;
+                top: 8px;
+                right: 12px;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 10px;
+                color: rgb(var(--volt-rgb, 210 255 0));
+                background: #070709;
+                padding: 2px 6px;
+                border: 1px solid rgb(var(--volt-rgb, 210 255 0));
+                pointer-events: none;
+                text-transform: uppercase;
+            }
+        `;
+        document.head.appendChild(bpStyle);
+
+        let blueprintActive = false;
+        function toggleBlueprintMode() {
+            blueprintActive = !blueprintActive;
+            document.body.classList.toggle('blueprint-mode', blueprintActive);
+            const bpBtn = document.getElementById('bp-dock-btn');
+            if (bpBtn) {
+                bpBtn.textContent = blueprintActive ? 'CAD: ON' : 'CAD: OFF';
+                bpBtn.classList.toggle('text-volt', blueprintActive);
+                bpBtn.classList.toggle('text-zinc-400', !blueprintActive);
+            }
+            playTelemetrySound('click');
+
+            if (navHud && navHudText) {
+                navHudText.textContent = blueprintActive ? 'ENGINE // CAD BLUEPRINT WIREFRAME [ACTIVE]' : 'ENGINE // STANDARD RENDER';
+                gsap.killTweensOf(navHud);
+                gsap.to(navHud, { opacity: 1, y: 0, duration: 0.2 });
+                gsap.to(navHud, { opacity: 0, y: -8, duration: 0.3, delay: 1.2 });
+            }
+        }
+
+        // Adicionar botão CAD à Dock Flutuante automaticamente
+        const sfxBtnEl = document.getElementById('sfx-btn');
+        if (sfxBtnEl && sfxBtnEl.parentNode) {
+            sfxBtnEl.classList.add('border-r', 'border-white/10');
+            const bpBtn = document.createElement('button');
+            bpBtn.type = 'button';
+            bpBtn.id = 'bp-dock-btn';
+            bpBtn.onclick = toggleBlueprintMode;
+            bpBtn.className = 'hover-target text-zinc-400 hover:text-volt font-bold px-3 sm:px-3.5 py-2.5 flex items-center gap-1.5 hover:bg-white/5 active:scale-95 transition';
+            bpBtn.textContent = 'CAD: OFF';
+            sfxBtnEl.parentNode.appendChild(bpBtn);
+        }
+
+        window.addEventListener('keydown', (e) => {
+            const activeTag = document.activeElement ? document.activeElement.tagName : '';
+            if (activeTag === 'INPUT' || activeTag === 'TEXTAREA' || e.ctrlKey || e.metaKey || e.altKey) return;
+            if (e.key.toLowerCase() === 'b') {
+                toggleBlueprintMode();
+            }
+        });
+
+        // 3. Banner de Telemetria no DevTools (F12 Console Easter Egg para Recrutadores)
+        console.log(
+            '%c ⚡ PEDRO LOPES // PL19 TELEMETRY ENGINE v2.8 ',
+            'background: #D2FF00; color: #070709; font-weight: bold; font-family: monospace; font-size: 13px; padding: 6px 10px;'
+        );
+        console.log(
+            '%c[SYSTEM] Full-Stack Web & Network Infrastructure — Vila Nova de Gaia, PT\n[SHORTCUTS] Teclas [1-5]: Navegação | [Ctrl+K]: Terminal CLI | [L]: Livery | [M]: Som | [B]: Modo CAD Blueprint\n[CONTACT] pedrodinislopes@gmail.com | https://github.com/pdsl19',
+            'color: #D2FF00; font-family: monospace; font-size: 11px; line-height: 1.6;'
+        );
         
     </script>
 </body>
