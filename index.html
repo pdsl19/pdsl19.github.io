@@ -2245,6 +2245,125 @@
                 toggleHotkeysModal();
             }
         });
+
+        // 20. UPGRADE 10: CONSOLA DE BRIEFING DIRETO (SEC 04) + AUTO-SCRAMBLE NO SCROLL + BOTÃO WARP TOP
+
+        // 1. Descodificação Matrix Automática nos Títulos ao Fazer Scroll
+        gsap.utils.toArray('.section-heading').forEach(heading => {
+            ScrollTrigger.create({
+                trigger: heading,
+                start: 'top 85%',
+                once: true,
+                onEnter: () => scrambleText(heading)
+            });
+        });
+
+        // 2. Consola Interativa de Briefing & Envio Direto na Secção 04 (Contacto)
+        const contactBox = document.querySelector('#contacto > div');
+        if (contactBox) {
+            const dispatchPanel = document.createElement('div');
+            dispatchPanel.className = 'mt-10 pt-8 border-t border-white/10 font-mono text-xs';
+            dispatchPanel.innerHTML = `
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <span class="text-volt font-bold flex items-center gap-2">
+                        <span class="w-2 h-2 bg-volt animate-ping"></span>
+                        DIRECT_DISPATCH // CONFIGURAR MENSAGEM RÁPIDA
+                    </span>
+                    <span class="text-zinc-500 text-[11px]">PROTOCOL: ZERO-BACKEND MAIL PAYLOAD</span>
+                </div>
+
+                <!-- Seleção de Tópico -->
+                <div class="flex flex-wrap gap-2 mb-4" id="topic-pills">
+                    <button type="button" data-topic="PROJETO WEB FULL-STACK" class="topic-pill hover-target bg-volt text-black font-bold px-3 py-1.5 border border-volt transition">
+                        [01. WEB FULL-STACK]
+                    </button>
+                    <button type="button" data-topic="INFRAESTRUTURA & REDES" class="topic-pill hover-target bg-black text-zinc-300 px-3 py-1.5 border border-white/15 hover:border-volt transition">
+                        [02. REDES & INFRA]
+                    </button>
+                    <button type="button" data-topic="OPORTUNIDADE / RECRUTAMENTO" class="topic-pill hover-target bg-black text-zinc-300 px-3 py-1.5 border border-white/15 hover:border-volt transition">
+                        [03. RECRUTAMENTO / EQUIPA]
+                    </button>
+                </div>
+
+                <!-- Campos de Input -->
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 mb-4">
+                    <input type="text" id="dispatch-sender" placeholder="Teu Nome ou Empresa (ex: Tech Porto)"
+                           class="sm:col-span-4 bg-black/90 border border-white/15 px-4 py-3 text-white placeholder:text-zinc-600 focus:border-volt focus:outline-none">
+                    <input type="text" id="dispatch-msg" placeholder="Resumo da proposta ou mensagem rápida..."
+                           class="sm:col-span-8 bg-black/90 border border-white/15 px-4 py-3 text-white placeholder:text-zinc-600 focus:border-volt focus:outline-none">
+                </div>
+
+                <!-- Botões de Disparo -->
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button type="button" id="send-gmail-payload"
+                            class="hover-target bg-volt text-black font-bold uppercase px-6 py-3.5 hover:bg-white active:scale-[0.99] transition text-center">
+                        ABRIR NO GMAIL PRÉ-PREENCHIDO ↗
+                    </button>
+                    <button type="button" id="send-app-payload"
+                            class="hover-target bg-black text-white border border-white/20 uppercase px-6 py-3.5 hover:border-volt hover:text-volt active:scale-[0.99] transition text-center">
+                        ABRIR NA APP DE EMAIL (OUTLOOK / IOS) ↗
+                    </button>
+                </div>
+            `;
+            contactBox.appendChild(dispatchPanel);
+
+            let selectedTopic = 'PROJETO WEB FULL-STACK';
+            const pills = dispatchPanel.querySelectorAll('.topic-pill');
+            pills.forEach(pill => {
+                pill.addEventListener('click', () => {
+                    playTelemetrySound('click');
+                    selectedTopic = pill.getAttribute('data-topic');
+                    pills.forEach(p => {
+                        p.className = 'topic-pill hover-target bg-black text-zinc-300 px-3 py-1.5 border border-white/15 hover:border-volt transition';
+                    });
+                    pill.className = 'topic-pill hover-target bg-volt text-black font-bold px-3 py-1.5 border border-volt transition';
+                });
+            });
+
+            function buildMailPayload() {
+                const sender = document.getElementById('dispatch-sender').value.trim() || 'Contacto via Portfólio';
+                const msg = document.getElementById('dispatch-msg').value.trim() || 'Olá Pedro, visitei o teu portfólio (pdsl19.github.io) e gostaria de falar contigo sobre uma oportunidade.';
+                const subject = encodeURIComponent(`[PL19 // ${selectedTopic}] ${sender}`);
+                const body = encodeURIComponent(`Olá Pedro,\n\n${msg}\n\n---\nRemetente: ${sender}\n Tópico: ${selectedTopic}\nEnviado via pdsl19.github.io`);
+                return { subject, body };
+            }
+
+            document.getElementById('send-gmail-payload').addEventListener('click', () => {
+                playTelemetrySound('click');
+                const { subject, body } = buildMailPayload();
+                window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=pedrodinislopes@gmail.com&su=${subject}&body=${body}`, '_blank');
+            });
+
+            document.getElementById('send-app-payload').addEventListener('click', () => {
+                playTelemetrySound('click');
+                const { subject, body } = buildMailPayload();
+                window.location.href = `mailto:pedrodinislopes@gmail.com?subject=${subject}&body=${body}`;
+            });
+        }
+
+        // 3. Botão Tático Flutuante "WARP TOP [↑]" (Canto Inferior Direito)
+        const warpTopBtn = document.createElement('button');
+        warpTopBtn.type = 'button';
+        warpTopBtn.id = 'warp-top-btn';
+        warpTopBtn.setAttribute('aria-label', 'Voltar ao Topo');
+        warpTopBtn.className = 'hover-target fixed bottom-5 right-4 sm:right-6 z-40 bg-obsidian/90 backdrop-blur-md border border-volt/50 text-volt font-mono text-[11px] sm:text-xs font-bold px-3.5 py-2.5 shadow-[0_0_20px_rgba(210,255,0,0.15)] opacity-0 translate-y-4 pointer-events-none hover:bg-volt hover:text-black active:scale-95 transition-all duration-300';
+        warpTopBtn.innerHTML = 'TOP ↑';
+        document.body.appendChild(warpTopBtn);
+
+        warpTopBtn.addEventListener('click', () => {
+            playTelemetrySound('click');
+            navigateToSection('#topo', '00. HOME // TOP');
+        });
+
+        lenis.on('scroll', (e) => {
+            if (e.progress > 0.28) {
+                warpTopBtn.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+                warpTopBtn.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+            } else {
+                warpTopBtn.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+                warpTopBtn.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+            }
+        });
         
     </script>
 </body>
