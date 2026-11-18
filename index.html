@@ -1601,6 +1601,114 @@
             requestAnimationFrame(updateFPS);
         }
 
+        // 16. UPGRADE 06: SIMULADORES INTERATIVOS NOS CARTÕES (SQL PAP & CISCO PACKET TRACER)
+        const allProjectCards = document.querySelectorAll('.project-card');
+
+        // Simulador 01: Consola SQL & MariaDB no Cartão da PAP (Card 2)
+        if (allProjectCards[1]) {
+            const papTags = allProjectCards[1].querySelector('div.flex.flex-wrap');
+            if (papTags) {
+                const dbBox = document.createElement('div');
+                dbBox.className = 'bg-black/90 border border-white/10 p-4 mb-6 font-mono text-[11px] group-hover:border-volt/40 transition';
+                dbBox.innerHTML = `
+                    <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-white/10 text-zinc-500">
+                        <span>MARIADB_CLUSTER // AUTH_ENGINE</span>
+                        <button type="button" id="run-sql-btn" class="text-volt hover:underline font-bold">[TEST QUERY ↵]</button>
+                    </div>
+                    <div id="sql-readout" class="text-zinc-400 space-y-1">
+                        <div><span class="text-volt">SELECT</span> role, status <span class="text-volt">FROM</span> users <span class="text-volt">WHERE</span> id = 19;</div>
+                        <div class="text-zinc-500">> Status: <span class="text-white">3 Tables Indexed</span> | Latency: <span class="text-volt">0.4ms</span></div>
+                    </div>
+                `;
+                papTags.parentNode.insertBefore(dbBox, papTags);
+
+                const sqlBtn = document.getElementById('run-sql-btn');
+                const sqlReadout = document.getElementById('sql-readout');
+                const sqlQueries = [
+                    { q: `SELECT role, access FROM permissions WHERE user='admin';`, r: `> Result: 1 row [ROLE_SUPERADMIN // CRUD_FULL] (0.3ms)` },
+                    { q: `SHOW STATUS LIKE 'Threads_connected';`, r: `> MariaDB Engine: ACTIVE // Integrity Check: 100% OK` },
+                    { q: `INSERT INTO audit_log (action, node) VALUES ('AUTH_OK', 'PL19');`, r: `> Query OK, 1 row affected (0.2ms) // Session Validated` }
+                ];
+                let sqlIdx = 0;
+
+                if (sqlBtn && sqlReadout) {
+                    sqlBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        playTelemetrySound('click');
+                        const item = sqlQueries[sqlIdx];
+                        sqlIdx = (sqlIdx + 1) % sqlQueries.length;
+                        sqlReadout.innerHTML = `
+                            <div class="text-white">${item.q}</div>
+                            <div class="text-volt font-bold">${item.r}</div>
+                        `;
+                    });
+                }
+            }
+        }
+
+        // Simulador 02: Topologia Cisco Packet Tracer no Cartão de Redes (Card 3)
+        if (allProjectCards[2]) {
+            const netTags = allProjectCards[2].querySelector('div.flex.flex-wrap');
+            if (netTags) {
+                const netBox = document.createElement('div');
+                netBox.className = 'bg-black/90 border border-white/10 p-4 mb-6 font-mono text-[11px] group-hover:border-volt/40 transition';
+                netBox.innerHTML = `
+                    <div class="flex items-center justify-between pb-2 mb-3 border-b border-white/10 text-zinc-500">
+                        <span>CISCO_IOS // VLAN_TOPOLOGY</span>
+                        <button type="button" id="ping-topo-btn" class="text-volt hover:underline font-bold">[SEND ICMP PACKET ↵]</button>
+                    </div>
+                    <div class="flex items-center justify-between text-[10px] sm:text-[11px] text-zinc-400 py-1 px-1">
+                        <span id="hop-0" class="px-1.5 py-0.5 border border-white/15 bg-zinc-900 text-white transition">PC0</span>
+                        <span class="text-zinc-600">──</span>
+                        <span id="hop-1" class="px-1.5 py-0.5 border border-white/15 bg-zinc-900 transition">SW0</span>
+                        <span class="text-zinc-600">──</span>
+                        <span id="hop-2" class="px-1.5 py-0.5 border border-white/15 bg-zinc-900 transition">RTR0</span>
+                        <span class="text-zinc-600">──</span>
+                        <span id="hop-3" class="px-1.5 py-0.5 border border-white/15 bg-zinc-900 transition">SW1</span>
+                        <span class="text-zinc-600">──</span>
+                        <span id="hop-4" class="px-1.5 py-0.5 border border-white/15 bg-zinc-900 transition">PC1</span>
+                    </div>
+                    <div id="topo-status" class="text-zinc-500 text-[10px] mt-2.5 pt-2 border-t border-white/5">
+                        > Subnet: 192.168.19.0/26 (VLSM) // Gateway: 192.168.19.1 [UP]
+                    </div>
+                `;
+                netTags.parentNode.insertBefore(netBox, netTags);
+
+                const pingBtn = document.getElementById('ping-topo-btn');
+                const topoStatus = document.getElementById('topo-status');
+                let isPinging = false;
+
+                if (pingBtn && topoStatus) {
+                    pingBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (isPinging) return;
+                        isPinging = true;
+                        playTelemetrySound('click');
+
+                        const hops = [0, 1, 2, 3, 4].map(i => document.getElementById(`hop-${i}`));
+                        const logs = [
+                            '> [HOP 1] PC0 (192.168.19.10) -> ICMP Echo Request generated',
+                            '> [HOP 2] SW0 -> Frame tagged on VLAN 10 (802.1Q Trunk)',
+                            '> [HOP 3] RTR0 (192.168.19.1) -> Inter-VLAN Routing table hit',
+                            '> [HOP 4] SW1 -> Forwarding frame to destination MAC',
+                            '> [ACK] PC1 (192.168.19.62) -> Reply received: time=1.8ms TTL=63 [0% LOSS]'
+                        ];
+
+                        hops.forEach(h => h && h.classList.remove('border-volt', 'text-volt', 'bg-volt/10'));
+
+                        hops.forEach((hopEl, idx) => {
+                            setTimeout(() => {
+                                if (hopEl) hopEl.classList.add('border-volt', 'text-volt', 'bg-volt/10');
+                                topoStatus.innerHTML = `<span class="${idx === 4 ? 'text-volt font-bold' : 'text-zinc-300'}">${logs[idx]}</span>`;
+                                playTelemetrySound('hover');
+                                if (idx === 4) isPinging = false;
+                            }, idx * 220);
+                        });
+                    });
+                }
+            }
+        }
+        
     </script>
 </body>
 </html>
