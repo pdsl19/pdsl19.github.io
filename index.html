@@ -2365,6 +2365,215 @@
             }
         });
         
+        // 21. UPGRADE 11: MENU TÁTICO DE CLIQUE DIREITO + MOTOR BILINGUE (PT/EN) + MEMÓRIA LOCALSTORAGE
+
+        // 1. Motor Bilingue Instantâneo (PT ⇄ EN) com Descodificação Matrix
+        let currentLang = localStorage.getItem('pl19_lang') || 'PT';
+
+        const i18nDict = {
+            PT: {
+                nav: ['[01. Projetos]', '[02. Percurso]', '[03. Stack]', '[04. Contacto]'],
+                heroSub: 'FULL-STACK WEB & INFRAESTRUTURA DE REDES',
+                heroDesc: 'Desenvolvo aplicações web full-stack, bases de dados relacionais e arquiteturas de rede estruturadas. Código rápido, sistemas estáveis e zero palha visual.',
+                heroBtns: ['Explorar Projetos ↓', 'Currículo / PDF ↓', 'Contacto'],
+                headings: [
+                    { plain: 'PROJETOS REAIS', html: 'PROJETOS <span class="text-outline">REAIS</span>' },
+                    { plain: 'EXPERIÊNCIA & FORMAÇÃO', html: 'EXPERIÊNCIA & <span class="text-outline">FORMAÇÃO</span>' },
+                    { plain: 'ARSENAL TÉCNICO', html: 'ARSENAL <span class="text-outline">TÉCNICO</span>' },
+                    { plain: 'PRONTO PARA COLABORAR?', html: 'PRONTO PARA <span class="text-volt">COLABORAR?</span>' }
+                ],
+                projDescs: [
+                    'Plataforma web interativa criada para os estudantes do ISPGAYA com horários, guias académicos e recursos do campus. Equipada com monitorização de tráfego e métricas de utilização em tempo real via GoatCounter Analytics.',
+                    'Aplicação web desenvolvida para o Centro Social Paroquial Nossa Senhora da Boavista. Gestão completa de utilizadores, permissões e registos com arquitetura relacional em MySQL/MariaDB.',
+                    'Desenho e simulação de infraestruturas de rede estruturadas. Cálculo de máscaras e sub-redes (VLSM), segmentação por VLANs e configuração de routers e switches Cisco via linha de comandos (IOS CLI).'
+                ],
+                contactDesc: 'Disponível para projetos web, infraestrutura de redes ou oportunidades técnicas no Porto e Vila Nova de Gaia.'
+            },
+            EN: {
+                nav: ['[01. Projects]', '[02. Track Record]', '[03. Stack]', '[04. Contact]'],
+                heroSub: 'FULL-STACK WEB & NETWORK INFRASTRUCTURE',
+                heroDesc: 'Building full-stack web applications, relational databases, and structured network architectures. Fast code, stable systems, and zero visual bloat.',
+                heroBtns: ['Explore Projects ↓', 'Resume / PDF ↓', 'Contact'],
+                headings: [
+                    { plain: 'REAL PROJECTS', html: 'REAL <span class="text-outline">PROJECTS</span>' },
+                    { plain: 'EXPERIENCE & EDUCATION', html: 'EXPERIENCE & <span class="text-outline">EDUCATION</span>' },
+                    { plain: 'TECHNICAL ARSENAL', html: 'TECHNICAL <span class="text-outline">ARSENAL</span>' },
+                    { plain: 'READY TO COLLABORATE?', html: 'READY TO <span class="text-volt">COLLABORATE?</span>' }
+                ],
+                projDescs: [
+                    'Interactive web platform built for ISPGAYA students featuring schedules, academic guides, and campus resources. Equipped with real-time traffic monitoring and usage analytics via GoatCounter.',
+                    'Full-stack web application built for Centro Social Paroquial N. Sra. da Boavista. Complete user management, role permissions, and relational data architecture powered by PHP and MySQL/MariaDB.',
+                    'Design and simulation of structured enterprise networks. Variable Length Subnet Masking (VLSM), VLAN segmentation, and Cisco router/switch configuration via IOS CLI.'
+                ],
+                contactDesc: 'Available for full-stack web projects, network infrastructure, or technical opportunities in Porto and Vila Nova de Gaia.'
+            }
+        };
+
+        function applyLanguage(lang, animate = true) {
+            currentLang = lang;
+            localStorage.setItem('pl19_lang', lang);
+            const d = i18nDict[lang];
+
+            // Atualizar botão na Navbar
+            const langBtn = document.getElementById('lang-toggle-btn');
+            if (langBtn) langBtn.textContent = lang === 'PT' ? 'PT // EN' : 'EN // PT';
+
+            // Atualizar links da Navbar PC
+            const navLinks = document.querySelectorAll('header nav a.nav-link');
+            navLinks.forEach((a, i) => { if (d.nav[i]) a.textContent = d.nav[i]; });
+
+            // Atualizar Hero
+            const heroSubEl = document.querySelector('.hero-reveal span.w-full.sm\\:w-auto');
+            if (heroSubEl) heroSubEl.textContent = d.heroSub;
+
+            const heroDescEl = document.querySelector('p.hero-reveal');
+            if (heroDescEl) heroDescEl.textContent = d.heroDesc;
+
+            const heroActionEls = document.querySelectorAll('.hero-reveal.lg\\:col-span-7 > *');
+            heroActionEls.forEach((btn, i) => { if (d.heroBtns[i]) btn.textContent = d.heroBtns[i]; });
+
+            // Atualizar Títulos das Secções com Matrix Scramble
+            const secHeadings = document.querySelectorAll('.section-heading');
+            secHeadings.forEach((h, i) => {
+                if (d.headings[i]) {
+                    h.setAttribute('data-original', d.headings[i].plain);
+                    h.innerHTML = d.headings[i].html;
+                    if (animate) scrambleText(h);
+                }
+            });
+
+            // Atualizar Descrições dos 3 Projetos
+            const projParagraphs = document.querySelectorAll('.project-card p.text-zinc-400');
+            projParagraphs.forEach((p, i) => { if (d.projDescs[i]) p.textContent = d.projDescs[i]; });
+
+            // Atualizar Descrição de Contacto
+            const contactP = document.querySelector('#contacto p.text-zinc-400');
+            if (contactP) contactP.textContent = d.contactDesc;
+
+            if (animate && navHud && navHudText) {
+                navHudText.textContent = `LOCALE // ${lang === 'PT' ? 'PORTUGUÊS [PT-PT]' : 'ENGLISH [EN-US]'}`;
+                gsap.killTweensOf(navHud);
+                gsap.to(navHud, { opacity: 1, y: 0, duration: 0.2 });
+                gsap.to(navHud, { opacity: 0, y: -8, duration: 0.3, delay: 1.2 });
+            }
+        }
+
+        function toggleLanguage() {
+            playTelemetrySound('click');
+            applyLanguage(currentLang === 'PT' ? 'EN' : 'PT', true);
+        }
+
+        // Injetar botão [PT // EN] na Navbar ao lado do relógio
+        const headerRightBox = document.querySelector('header .flex.items-center.gap-2\\.5');
+        if (headerRightBox) {
+            const langBtn = document.createElement('button');
+            langBtn.type = 'button';
+            langBtn.id = 'lang-toggle-btn';
+            langBtn.onclick = toggleLanguage;
+            langBtn.className = 'hover-target font-mono text-[11px] bg-zinc-900 border border-white/15 text-zinc-300 hover:border-volt hover:text-volt px-2.5 py-2 font-bold active:scale-95 transition';
+            langBtn.textContent = currentLang === 'PT' ? 'PT // EN' : 'EN // PT';
+            headerRightBox.insertBefore(langBtn, headerRightBox.firstChild);
+        }
+
+        // 2. Menu Tático de Clique Direito (Custom Context Menu em PC)
+        const ctxMenu = document.createElement('div');
+        ctxMenu.id = 'tactical-ctx-menu';
+        ctxMenu.className = 'fixed z-[98] hidden bg-obsidian/95 backdrop-blur-xl border-2 border-volt w-64 p-2 shadow-[0_0_40px_rgba(210,255,0,0.2)] font-mono text-xs select-none';
+        ctxMenu.innerHTML = `
+            <div class="flex items-center justify-between px-2.5 py-1.5 mb-1 border-b border-white/10 text-[10px] text-zinc-500">
+                <span class="text-volt font-bold">PL19 // QUICK_HUD</span>
+                <span id="ctx-coords">X:000 Y:000</span>
+            </div>
+            <button type="button" data-ctx="email" class="w-full text-left px-2.5 py-2 hover:bg-volt hover:text-black transition flex justify-between">
+                <span>[01] Copiar Email</span><span class="opacity-60">COPY</span>
+            </button>
+            <button type="button" data-ctx="cv" class="w-full text-left px-2.5 py-2 hover:bg-volt hover:text-black transition flex justify-between">
+                <span>[02] Abrir Currículo</span><span class="opacity-60">PDF ↓</span>
+            </button>
+            <button type="button" data-ctx="cli" class="w-full text-left px-2.5 py-2 hover:bg-volt hover:text-black transition flex justify-between">
+                <span>[03] Terminal Interativo</span><span class="opacity-60">CTRL+K</span>
+            </button>
+            <button type="button" data-ctx="livery" class="w-full text-left px-2.5 py-2 hover:bg-volt hover:text-black transition flex justify-between">
+                <span>[04] Alternar Livery</span><span class="opacity-60">KEY L</span>
+            </button>
+            <button type="button" data-ctx="cad" class="w-full text-left px-2.5 py-2 hover:bg-volt hover:text-black transition flex justify-between">
+                <span>[05] Modo CAD Blueprint</span><span class="opacity-60">KEY B</span>
+            </button>
+            <button type="button" data-ctx="lang" class="w-full text-left px-2.5 py-2 hover:bg-volt hover:text-black transition flex justify-between border-t border-white/10 mt-1 pt-2">
+                <span>[06] Idioma PT ⇄ EN</span><span class="opacity-60">KEY E</span>
+            </button>
+        `;
+        document.body.appendChild(ctxMenu);
+
+        function hideCtxMenu() {
+            ctxMenu.classList.add('hidden');
+        }
+
+        if (isDesktopPointer) {
+            window.addEventListener('contextmenu', (e) => {
+                if (e.shiftKey) return; // Shift + Clique Direito mantém o menu nativo do browser
+                e.preventDefault();
+                playTelemetrySound('hover');
+
+                const x = Math.min(e.clientX, window.innerWidth - 270);
+                const y = Math.min(e.clientY, window.innerHeight - 260);
+                ctxMenu.style.left = `${x}px`;
+                ctxMenu.style.top = `${y}px`;
+
+                const coordsEl = document.getElementById('ctx-coords');
+                if (coordsEl) {
+                    coordsEl.textContent = `X:${String(e.clientX).padStart(3, '0')} Y:${String(e.clientY).padStart(3, '0')}`;
+                }
+
+                ctxMenu.classList.remove('hidden');
+                gsap.fromTo(ctxMenu, { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, duration: 0.15, ease: 'power2.out' });
+            });
+
+            window.addEventListener('click', hideCtxMenu);
+            window.addEventListener('scroll', hideCtxMenu);
+        }
+
+        ctxMenu.querySelectorAll('button[data-ctx]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const action = btn.getAttribute('data-ctx');
+                hideCtxMenu();
+                if (action === 'email') triggerSmartEmail();
+                else if (action === 'cv') openCVModal();
+                else if (action === 'cli') openCLIModal();
+                else if (action === 'livery') cycleLivery();
+                else if (action === 'cad') toggleBlueprintMode();
+                else if (action === 'lang') toggleLanguage();
+            });
+        });
+
+        // 3. Persistência de Preferências (Livery & Idioma) + Atalho Tecla E
+        const savedLivery = localStorage.getItem('pl19_livery');
+        if (savedLivery !== null && liveries[Number(savedLivery)]) {
+            currentLiveryIdx = Number(savedLivery);
+            applyLivery(currentLiveryIdx, false);
+        }
+
+        const origCycleLivery = cycleLivery;
+        cycleLivery = function() {
+            origCycleLivery();
+            localStorage.setItem('pl19_livery', currentLiveryIdx);
+        };
+
+        if (currentLang === 'EN') {
+            applyLanguage('EN', false);
+        }
+
+        window.addEventListener('keydown', (e) => {
+            const activeTag = document.activeElement ? document.activeElement.tagName : '';
+            if (activeTag === 'INPUT' || activeTag === 'TEXTAREA' || e.ctrlKey || e.metaKey || e.altKey) return;
+            if (e.key.toLowerCase() === 'e') {
+                toggleLanguage();
+            } else if (e.key === 'Escape') {
+                hideCtxMenu();
+            }
+        });
+        
     </script>
 </body>
 </html>
