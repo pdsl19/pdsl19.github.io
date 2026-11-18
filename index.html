@@ -2577,6 +2577,193 @@
             }
         });
 
+        // 22. UPGRADE 12: DOSSIER DE ARQUITETURA & SCHEMA NOS PROJETOS + TRADUÇÃO PROFUNDA (SEC 02 & 03)
+
+        // 1. Dados de Arquitetura Técnica dos 3 Projetos
+        const archSpecs = [
+            {
+                code: 'ARCH_01 // ISPGUIA_STUDENT_HUB',
+                title: 'ISPGUIA — Arquitetura & Telemetria Web',
+                flow: '[CLIENT BROWSER] ──(HTTPS / ZERO-BLOAT DOM)──> [STATIC CORE ENGINE] ──(ASYNC BEACON)──> [GOATCOUNTER ANALYTICS]',
+                layers: [
+                    { name: 'FRONTEND CORE', spec: 'HTML5 Semântico + CSS3 Custom Grid + Vanilla JS (Zero frameworks pesadas para carregamento instantâneo em redes móveis no campus).' },
+                    { name: 'DATA & SCHEDULES', spec: 'Estruturação modular de horários académicos, salas, contactos de serviços e guias práticos para alunos do 1.º ano do ISPGAYA.' },
+                    { name: 'TELEMETRY ENGINE', spec: 'Integração via API GoatCounter privacy-first (sem banners intrusivos de cookies) para medir páginas críticas e picos de acesso.' }
+                ],
+                metrics: ['FCP LOAD: ~0.18s', 'LIGHTHOUSE: 99/100', 'STATUS: STAGING @ ISPGAYA']
+            },
+            {
+                code: 'ARCH_02 // PAP_GESTAO_INTEGRADA',
+                title: 'Sistema de Gestão Integrado — Schema Relacional & Auth',
+                flow: '[UI / JS VALIDATION] ──(POST / SESSION)──> [PHP 8 CONTROLLER] ──(PDO / SQL QUERIES)──> [MYSQL / MARIADB 3NF]',
+                layers: [
+                    { name: 'SECURITY & AUTH', spec: 'Controlo de sessões PHP com proteção de rotas, hashing de credenciais e separação estrita de níveis de acesso (Admin vs Utilizador).' },
+                    { name: 'RELATIONAL DB (3NF)', spec: 'Base de dados normalizada em MySQL/MariaDB com chaves estrangeiras, integridade referencial e auditoria de operações CRUD.' },
+                    { name: 'INSTITUTIONAL TARGET', spec: 'Desenvolvido à medida para o Centro Social Paroquial N. Sra. da Boavista (Projeto Final avaliado no Colégio de Gaia).' }
+                ],
+                metrics: ['ENGINE: PHP + MARIADB', 'ARCHITECTURE: MVC / CRUD', 'SECURITY: ROLE-BASED (RBAC)']
+            },
+            {
+                code: 'ARCH_03 // CISCO_QUATRO_NOS',
+                title: 'Topologias LAN & Subnetting — Plano VLSM & Routing',
+                flow: '[VLAN 10 / 20 HOSTS] ──(802.1Q TRUNK)──> [CISCO L2 SWITCHES] ──(SUB-INTERFACES)──> [CISCO ROUTER // INTER-VLAN]',
+                layers: [
+                    { name: 'VLSM ADDRESSING', spec: 'Segmentação eficiente de blocos IPv4 com máscaras variáveis (/26, /27, /30) para eliminar desperdício de IPs e isolar domínios de broadcast.' },
+                    { name: 'SWITCHING & VLANS', spec: 'Configuração via Cisco IOS CLI de portas Access, links Trunk 802.1Q e separação lógica de tráfego por departamentos.' },
+                    { name: 'ROUTING & VERIFICATION', spec: 'Encaminhamento Inter-VLAN (Router-on-a-Stick) e rotas estáticas validadas com testes ICMP e simulação de pacotes no Packet Tracer.' }
+                ],
+                metrics: ['PROTOCOL: IEEE 802.1Q', 'SUBNETTING: VLSM IPv4', 'LOSS RATE: 0% ICMP']
+            }
+        ];
+
+        // Criar Modal de Arquitetura
+        const archModal = document.createElement('div');
+        archModal.id = 'arch-modal';
+        archModal.className = 'fixed inset-0 z-[93] hidden items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md';
+        archModal.innerHTML = `
+            <div id="arch-modal-box" class="bg-zinc-950 border-2 border-volt max-w-3xl w-full p-5 sm:p-8 shadow-[0_0_60px_rgba(210,255,0,0.18)] font-mono text-xs max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between gap-4 pb-4 mb-5 border-b border-white/10">
+                    <div>
+                        <span id="arch-code" class="text-volt font-bold text-[11px]">// ARCH_SPEC</span>
+                        <h3 id="arch-title" class="font-display text-xl sm:text-2xl font-bold uppercase text-white mt-1">SYSTEM ARCHITECTURE</h3>
+                    </div>
+                    <button type="button" id="close-arch-btn" class="hover-target bg-zinc-900 text-zinc-300 border border-white/15 px-3 py-2 hover:border-volt hover:text-volt transition font-bold shrink-0">
+                        [ESC ×]
+                    </button>
+                </div>
+
+                <div class="mb-5">
+                    <div class="text-[10px] text-zinc-500 uppercase mb-1.5">// DATA & PACKET FLOW PIPELINE</div>
+                    <div id="arch-flow" class="bg-black border border-volt/40 p-3.5 text-volt font-bold text-[11px] overflow-x-auto whitespace-nowrap"></div>
+                </div>
+
+                <div id="arch-layers" class="space-y-3 mb-6"></div>
+
+                <div id="arch-metrics" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-4 border-t border-white/10"></div>
+            </div>
+        `;
+        document.body.appendChild(archModal);
+
+        function openArchModal(idx) {
+            const spec = archSpecs[idx];
+            if (!spec) return;
+            playTelemetrySound('click');
+
+            document.getElementById('arch-code').textContent = `// ${spec.code}`;
+            document.getElementById('arch-title').textContent = spec.title;
+            document.getElementById('arch-flow').textContent = spec.flow;
+
+            document.getElementById('arch-layers').innerHTML = spec.layers.map((l, i) => `
+                <div class="bg-zinc-900/60 border border-white/10 p-3.5">
+                    <div class="text-volt font-bold text-[11px] mb-1">[LAYER 0${i + 1} // ${l.name}]</div>
+                    <div class="font-sans text-zinc-300 text-xs sm:text-sm leading-relaxed">${l.spec}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('arch-metrics').innerHTML = spec.metrics.map(m => `
+                <div class="bg-black border border-white/10 px-3 py-2 text-center text-white font-bold text-[11px]">${m}</div>
+            `).join('');
+
+            archModal.classList.remove('hidden');
+            archModal.classList.add('flex');
+            lenis.stop();
+            gsap.fromTo('#arch-modal-box', { y: 25, opacity: 0, scale: 0.96 }, { y: 0, opacity: 1, scale: 1, duration: 0.3, ease: 'expo.out' });
+        }
+
+        function closeArchModal() {
+            if (archModal.classList.contains('hidden')) return;
+            playTelemetrySound('click');
+            archModal.classList.add('hidden');
+            archModal.classList.remove('flex');
+            lenis.start();
+        }
+
+        document.getElementById('close-arch-btn').addEventListener('click', closeArchModal);
+        archModal.addEventListener('click', (e) => {
+            if (e.target === archModal) closeArchModal();
+        });
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !archModal.classList.contains('hidden')) closeArchModal();
+        });
+
+        // Injetar botão [ARQUITETURA & SCHEMA +] nos 3 Cartões de Projeto
+        allProjectCards.forEach((card, idx) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'arch-trigger-btn hover-target mt-4 w-full bg-zinc-950 hover:bg-volt text-volt hover:text-black border border-volt/40 font-mono text-[11px] font-bold uppercase py-2.5 px-4 transition flex items-center justify-between';
+            btn.innerHTML = `<span>[INSPECIONAR ARQUITETURA & SCHEMA]</span><span>SPEC 0${idx + 1} +</span>`;
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openArchModal(idx);
+            });
+            card.appendChild(btn);
+        });
+
+        // 2. Extensão do Motor Bilingue (PT ⇄ EN) para as Secções 02 (Percurso), 03 (Stack) e Botões de Arquitetura
+        const deepI18n = {
+            PT: {
+                archBtn: '[INSPECIONAR ARQUITETURA & SCHEMA]',
+                printgalSub: 'Gestão Web, Catálogo & Bases de Dados',
+                printgalBullets: [
+                    'Gestão e atualização de conteúdos web em ambiente de produção empresarial.',
+                    'Auditoria técnica e estruturação de catálogos de produtos.',
+                    'Operações diretas e manutenção de integridade em bases de dados.'
+                ],
+                ispgayaDesc: 'Arquitetura de redes, routing/switching, administração de sistemas e desenvolvimento de projetos técnicos em equipa.',
+                gaiaDesc: 'Programação, desenvolvimento web full-stack, modelação de bases de dados relacionais e montagem/manutenção de hardware.',
+                stackTitles: ['Web & Código', 'Dados & Workflow', 'Redes & Sistemas']
+            },
+            EN: {
+                archBtn: '[INSPECT SYSTEM ARCHITECTURE & SCHEMA]',
+                printgalSub: 'Web Management, Catalog Auditing & Database Operations',
+                printgalBullets: [
+                    'Web content management and live production updates in an enterprise environment.',
+                    'Technical auditing and structured organization of product catalogs.',
+                    'Direct relational database operations and data integrity maintenance.'
+                ],
+                ispgayaDesc: 'Network architecture, routing & switching, systems administration, and collaborative engineering projects.',
+                gaiaDesc: 'Software programming, full-stack web development, relational database modeling, and PC hardware assembly/diagnostics.',
+                stackTitles: ['Web & Code', 'Data & Workflow', 'Networks & Systems']
+            }
+        };
+
+        const baseApplyLanguage = applyLanguage;
+        applyLanguage = function(lang, animate = true) {
+            baseApplyLanguage(lang, animate);
+            const t = deepI18n[lang];
+            if (!t) return;
+
+            // Atualizar botões de arquitetura nos projetos
+            document.querySelectorAll('.arch-trigger-btn span:first-child').forEach(el => {
+                el.textContent = t.archBtn;
+            });
+
+            // Atualizar Cartão Printgal e Formação (Secção 02)
+            const expCardsList = document.querySelectorAll('#experiencia .gsap-fade-up');
+            if (expCardsList[0]) {
+                const sub = expCardsList[0].querySelector('p.font-mono');
+                if (sub) sub.textContent = t.printgalSub;
+                const lis = expCardsList[0].querySelectorAll('ul li span:last-child');
+                lis.forEach((sp, i) => { if (t.printgalBullets[i]) sp.textContent = t.printgalBullets[i]; });
+            }
+            if (expCardsList[1]) {
+                const desc = expCardsList[1].querySelector('p.text-sm');
+                if (desc) desc.textContent = t.ispgayaDesc;
+            }
+            if (expCardsList[2]) {
+                const desc = expCardsList[2].querySelector('p.text-sm');
+                if (desc) desc.textContent = t.gaiaDesc;
+            }
+
+            // Atualizar Títulos das 3 Colunas da Stack (Secção 03)
+            const stackH3s = document.querySelectorAll('#stack h3.font-display');
+            stackH3s.forEach((h3, i) => { if (t.stackTitles[i]) h3.textContent = t.stackTitles[i]; });
+        };
+
+        if (currentLang === 'EN') {
+            applyLanguage('EN', false);
+        }
+        
     </script>
 </body>
 </html>
