@@ -2763,6 +2763,178 @@
         if (currentLang === 'EN') {
             applyLanguage('EN', false);
         }
+
+        // 24. UPGRADE 14: DIAGNÓSTICO DE HARDWARE/REDE (KEY D) + SMART FAST-BOOT + PRINT DATASHEET
+
+        // 1. Smart Fast-Boot no Preloader (Acelera 4x se a sessão já estiver iniciada)
+        if (sessionStorage.getItem('pl19_booted') === '1') {
+            if (typeof tl !== 'undefined') tl.timeScale(3.8);
+            const bootLabel = document.querySelector('#preloader span:first-child');
+            if (bootLabel) bootLabel.textContent = 'PEDRO.LOPES // FAST_BOOT [SESSION CACHED]';
+        } else {
+            sessionStorage.setItem('pl19_booted', '1');
+        }
+
+        // 2. Painel de Telemetria de Hardware & Rede do Cliente (Clique no Relógio/Ping ou Tecla D)
+        const diagPanel = document.createElement('div');
+        diagPanel.id = 'client-diag-panel';
+        diagPanel.className = 'fixed top-20 right-4 sm:right-8 z-[85] hidden bg-obsidian/95 backdrop-blur-xl border-2 border-volt w-72 sm:w-80 p-4 shadow-[0_0_45px_rgba(210,255,0,0.18)] font-mono text-xs select-none';
+        diagPanel.innerHTML = `
+            <div class="flex items-center justify-between pb-2.5 mb-3 border-b border-white/10">
+                <span class="text-volt font-bold flex items-center gap-2">
+                    <span class="w-2 h-2 bg-volt animate-ping"></span>
+                    CLIENT_NODE // DIAGNOSTICS
+                </span>
+                <button type="button" id="close-diag-btn" class="text-zinc-400 hover:text-volt font-bold">[D / ×]</button>
+            </div>
+            <div class="space-y-2 text-[11px]">
+                <div class="flex justify-between bg-black/80 border border-white/5 px-2.5 py-1.5">
+                    <span class="text-zinc-500">VIEWPORT / DPR:</span>
+                    <span id="diag-res" class="text-white font-bold">--</span>
+                </div>
+                <div class="flex justify-between bg-black/80 border border-white/5 px-2.5 py-1.5">
+                    <span class="text-zinc-500">CPU THREADS:</span>
+                    <span id="diag-cpu" class="text-volt font-bold">--</span>
+                </div>
+                <div class="flex justify-between bg-black/80 border border-white/5 px-2.5 py-1.5">
+                    <span class="text-zinc-500">NET DOWNLINK:</span>
+                    <span id="diag-net" class="text-white font-bold">--</span>
+                </div>
+                <div class="flex justify-between bg-black/80 border border-white/5 px-2.5 py-1.5">
+                    <span class="text-zinc-500">POWER / BATTERY:</span>
+                    <span id="diag-pwr" class="text-zinc-300">--</span>
+                </div>
+                <div class="flex justify-between bg-black/80 border border-white/5 px-2.5 py-1.5">
+                    <span class="text-zinc-500">SESSION UPTIME:</span>
+                    <span id="diag-uptime" class="text-volt font-bold">00:00:00</span>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(diagPanel);
+
+        const sessionStartTime = Date.now();
+
+        async function refreshClientDiagnostics() {
+            // Resolução + Densidade de Píxeis
+            const resEl = document.getElementById('diag-res');
+            if (resEl) {
+                const dpr = window.devicePixelRatio ? window.devicePixelRatio.toFixed(1) : '1.0';
+                resEl.textContent = `${window.innerWidth}×${window.innerHeight} @ ${dpr}x`;
+            }
+
+            // Threads lógicas do CPU
+            const cpuEl = document.getElementById('diag-cpu');
+            if (cpuEl) {
+                const cores = navigator.hardwareConcurrency || 'N/A';
+                cpuEl.textContent = `${cores} LOGICAL CORES`;
+            }
+
+            // Ligação de Rede (Network Information API)
+            const netEl = document.getElementById('diag-net');
+            if (netEl) {
+                const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+                if (conn && conn.downlink) {
+                    const type = (conn.effectiveType || 'LINK').toUpperCase();
+                    netEl.textContent = `~${conn.downlink} Mbps [${type}]`;
+                } else {
+                    netEl.textContent = `ONLINE // ${currentPingMs}ms RTT`;
+                }
+            }
+
+            // Energia / Bateria
+            const pwrEl = document.getElementById('diag-pwr');
+            if (pwrEl) {
+                if (navigator.getBattery) {
+                    try {
+                        const bat = await navigator.getBattery();
+                        const lvl = Math.round(bat.level * 100);
+                        pwrEl.textContent = `${lvl}% ${bat.charging ? '[AC CHARGING ⚡]' : '[BATTERY]'}`;
+                    } catch (e) {
+                        pwrEl.textContent = 'AC WORKSTATION';
+                    }
+                } else {
+                    pwrEl.textContent = 'AC WORKSTATION';
+                }
+            }
+        }
+
+        // Atualizar contador de Uptime a cada segundo
+        setInterval(() => {
+            const upEl = document.getElementById('diag-uptime');
+            if (!upEl || diagPanel.classList.contains('hidden')) return;
+            const totalSec = Math.floor((Date.now() - sessionStartTime) / 1000);
+            const hrs = String(Math.floor(totalSec / 3600)).padStart(2, '0');
+            const mins = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
+            const secs = String(totalSec % 60).padStart(2, '0');
+            upEl.textContent = `${hrs}:${mins}:${secs}`;
+        }, 1000);
+
+        function toggleDiagnosticsPanel() {
+            playTelemetrySound('click');
+            const isHidden = diagPanel.classList.contains('hidden');
+            if (isHidden) {
+                refreshClientDiagnostics();
+                diagPanel.classList.remove('hidden');
+                gsap.fromTo(diagPanel, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.22, ease: 'power2.out' });
+            } else {
+                diagPanel.classList.add('hidden');
+            }
+        }
+
+        document.getElementById('close-diag-btn').addEventListener('click', toggleDiagnosticsPanel);
+        window.addEventListener('resize', () => {
+            if (!diagPanel.classList.contains('hidden')) refreshClientDiagnostics();
+        });
+
+        // Tornar o relógio/ping da Navbar clicável para abrir o Diagnóstico
+        if (clockEl) {
+            clockEl.classList.add('cursor-pointer', 'hover:text-white', 'transition', 'border', 'border-transparent', 'hover:border-volt/40', 'px-2', 'py-1');
+            clockEl.title = 'Abrir Diagnóstico do Sistema (Tecla D)';
+            clockEl.addEventListener('click', toggleDiagnosticsPanel);
+        }
+
+        // Adicionar também botão [DIAG // D] na Dock Flutuante
+        const bpDockBtn = document.getElementById('bp-dock-btn');
+        if (bpDockBtn && bpDockBtn.parentNode) {
+            bpDockBtn.classList.add('border-r', 'border-white/10');
+            const diagDockBtn = document.createElement('button');
+            diagDockBtn.type = 'button';
+            diagDockBtn.onclick = toggleDiagnosticsPanel;
+            diagDockBtn.className = 'hover-target text-zinc-400 hover:text-volt font-bold px-3 sm:px-3.5 py-2.5 hidden sm:flex items-center gap-1.5 hover:bg-white/5 active:scale-95 transition';
+            diagDockBtn.textContent = 'DIAG';
+            bpDockBtn.parentNode.appendChild(diagDockBtn);
+        }
+
+        window.addEventListener('keydown', (e) => {
+            const activeTag = document.activeElement ? document.activeElement.tagName : '';
+            if (activeTag === 'INPUT' || activeTag === 'TEXTAREA' || e.ctrlKey || e.metaKey || e.altKey) return;
+            if (e.key.toLowerCase() === 'd') {
+                toggleDiagnosticsPanel();
+            } else if (e.key === 'Escape' && !diagPanel.classList.contains('hidden')) {
+                toggleDiagnosticsPanel();
+            }
+        });
+
+        // 3. Folha de Estilo @media print para Exportação Limpa (Ctrl + P)
+        const printStyle = document.createElement('style');
+        printStyle.innerHTML = `
+            @media print {
+                #preloader, #cursor-dot, #cursor-ring, #nav-hud, #email-toast, #scroll-bar-wrap,
+                #mobile-menu, #cv-modal, #cli-modal, #hotkeys-modal, #arch-modal, #tactical-ctx-menu,
+                #client-diag-panel, #warp-top-btn, div.fixed.bottom-5.left-4 {
+                    display: none !important;
+                }
+                body, html {
+                    background: #070709 !important;
+                    color: #F4F4F6 !important;
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                }
+                header { position: static !important; }
+                section { page-break-inside: avoid; padding-top: 2rem !important; padding-bottom: 2rem !important; }
+            }
+        `;
+        document.head.appendChild(printStyle);
         
     </script>
 </body>
