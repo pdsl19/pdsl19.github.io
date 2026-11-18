@@ -701,6 +701,66 @@
         </div>
     </div>
 
+    <!-- BOTÃO FLUTUANTE DO TERMINAL (PC & MOBILE) -->
+    <button type="button" onclick="openCLIModal()" aria-label="Abrir Terminal Interativo"
+            class="hover-target fixed bottom-5 left-4 sm:left-6 z-40 bg-obsidian/90 backdrop-blur-md border border-volt/50 hover:border-volt text-volt font-mono text-[11px] sm:text-xs font-bold px-3.5 py-2.5 shadow-[0_0_25px_rgba(210,255,0,0.15)] flex items-center gap-2.5 hover:bg-volt hover:text-black active:scale-95 transition group">
+        <span class="w-2 h-2 bg-volt group-hover:bg-black animate-pulse"></span>
+        <span>>_ TERMINAL</span>
+        <span class="hidden sm:inline-block text-[10px] px-1.5 py-0.5 bg-zinc-900 text-zinc-400 border border-white/10 group-hover:bg-black group-hover:text-volt">CTRL+K</span>
+    </button>
+
+    <!-- MODAL DO TERMINAL INTERATIVO (CTRL + K) -->
+    <div id="cli-modal" class="fixed inset-0 z-[92] hidden items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md">
+        <div id="cli-modal-box" class="bg-obsidian border-2 border-volt/60 max-w-3xl w-full shadow-[0_0_70px_rgba(210,255,0,0.15)] flex flex-col h-[78vh] sm:h-[540px] overflow-hidden">
+            
+            <!-- Barra de Topo do Terminal -->
+            <div class="bg-zinc-950 border-b border-white/10 px-4 sm:px-6 py-3.5 flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-2.5 font-mono text-xs">
+                    <span class="w-2.5 h-2.5 bg-volt inline-block"></span>
+                    <span class="text-white font-bold">PL19_SHELL //</span>
+                    <span class="text-zinc-500 hidden sm:inline">pedro@vng-node:~</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button type="button" onclick="runCLICommand('clear')" class="hover-target font-mono text-[11px] text-zinc-400 hover:text-volt transition">
+                        [LIMPAR]
+                    </button>
+                    <button type="button" onclick="closeCLIModal()" class="hover-target font-mono text-[11px] bg-zinc-900 text-zinc-300 border border-white/15 px-2.5 py-1 hover:border-volt hover:text-volt transition">
+                        [ESC ×]
+                    </button>
+                </div>
+            </div>
+
+            <!-- Atalhos Rápidos (Acessibilidade Mobile & 1-Click) -->
+            <div class="bg-zinc-900/50 border-b border-white/10 px-4 sm:px-6 py-2.5 flex items-center gap-2 overflow-x-auto shrink-0 font-mono text-[11px]">
+                <span class="text-zinc-500 shrink-0">CMD:</span>
+                <button type="button" onclick="runCLICommand('help')" class="hover-target shrink-0 px-2.5 py-1 bg-black border border-white/15 text-volt hover:bg-volt hover:text-black transition">help</button>
+                <button type="button" onclick="runCLICommand('whois')" class="hover-target shrink-0 px-2.5 py-1 bg-black border border-white/15 text-zinc-300 hover:border-volt hover:text-volt transition">whois</button>
+                <button type="button" onclick="runCLICommand('projects')" class="hover-target shrink-0 px-2.5 py-1 bg-black border border-white/15 text-zinc-300 hover:border-volt hover:text-volt transition">projects</button>
+                <button type="button" onclick="runCLICommand('stack')" class="hover-target shrink-0 px-2.5 py-1 bg-black border border-white/15 text-zinc-300 hover:border-volt hover:text-volt transition">stack</button>
+                <button type="button" onclick="runCLICommand('ping')" class="hover-target shrink-0 px-2.5 py-1 bg-black border border-white/15 text-zinc-300 hover:border-volt hover:text-volt transition">ping</button>
+                <button type="button" onclick="runCLICommand('ipconfig')" class="hover-target shrink-0 px-2.5 py-1 bg-black border border-white/15 text-zinc-300 hover:border-volt hover:text-volt transition">ipconfig</button>
+                <button type="button" onclick="runCLICommand('cv')" class="hover-target shrink-0 px-2.5 py-1 bg-black border border-white/15 text-zinc-300 hover:border-volt hover:text-volt transition">cv</button>
+            </div>
+
+            <!-- Output do Terminal -->
+            <div id="cli-output" class="flex-1 p-4 sm:p-6 overflow-y-auto font-mono text-xs sm:text-sm space-y-3 text-zinc-300">
+                <div class="text-zinc-500">PL19 TELEMETRY OS [Version 2.4.2026] — Vila Nova de Gaia, PT</div>
+                <div>Escreve <span class="text-volt font-bold">help</span> ou clica nos comandos acima para inspecionar o sistema.</div>
+            </div>
+
+            <!-- Input de Comando -->
+            <form id="cli-form" class="bg-zinc-950 border-t border-white/10 px-4 sm:px-6 py-3.5 flex items-center gap-3 shrink-0">
+                <span class="font-mono text-xs sm:text-sm text-volt font-bold shrink-0">pedro@pl19:~$</span>
+                <input type="text" id="cli-input" autocomplete="off" spellcheck="false"
+                       placeholder="Escreve um comando (ex: whois, ping, stack, cv)..."
+                       class="w-full bg-transparent font-mono text-xs sm:text-sm text-white focus:outline-none placeholder:text-zinc-600">
+                <button type="submit" class="hover-target font-mono text-xs bg-volt text-black font-bold px-3 py-1.5 hover:bg-white transition shrink-0">
+                    RUN ↵
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- SCRIPTS -->
     <script>
         gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
@@ -1141,6 +1201,177 @@
         }
         fetchGitHubTelemetry();
 
+        // 13. UPGRADE 03: TERMINAL INTERATIVO DE TELEMETRIA & REDES (CTRL + K)
+        const cliModal = document.getElementById('cli-modal');
+        const cliModalBox = document.getElementById('cli-modal-box');
+        const cliOutput = document.getElementById('cli-output');
+        const cliInput = document.getElementById('cli-input');
+        const cliForm = document.getElementById('cli-form');
+
+        function openCLIModal() {
+            if (!cliModal) return;
+            cliModal.classList.remove('hidden');
+            cliModal.classList.add('flex');
+            lenis.stop();
+            gsap.fromTo(cliModalBox,
+                { y: 35, opacity: 0, scale: 0.96 },
+                { y: 0, opacity: 1, scale: 1, duration: 0.35, ease: 'expo.out', onComplete: () => {
+                    if (isDesktopPointer && cliInput) cliInput.focus();
+                }}
+            );
+        }
+
+        function closeCLIModal() {
+            if (!cliModal || cliModal.classList.contains('hidden')) return;
+            gsap.to(cliModalBox, {
+                y: 20,
+                opacity: 0,
+                scale: 0.96,
+                duration: 0.22,
+                ease: 'power2.in',
+                onComplete: () => {
+                    cliModal.classList.add('hidden');
+                    cliModal.classList.remove('flex');
+                    lenis.start();
+                }
+            });
+        }
+
+        // Atalho de teclado Ctrl+K / Cmd+K e fecho com Escape
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                if (cliModal.classList.contains('hidden')) {
+                    openCLIModal();
+                } else {
+                    closeCLIModal();
+                }
+            } else if (e.key === 'Escape' && cliModal && !cliModal.classList.contains('hidden')) {
+                closeCLIModal();
+            }
+        });
+
+        if (cliModal) {
+            cliModal.addEventListener('click', (e) => {
+                if (e.target === cliModal) closeCLIModal();
+            });
+        }
+
+        function printCLILine(htmlContent, isCommand = false) {
+            const div = document.createElement('div');
+            div.className = isCommand ? 'text-volt font-bold pt-2 border-t border-white/5' : 'text-zinc-300 leading-relaxed';
+            div.innerHTML = htmlContent;
+            cliOutput.appendChild(div);
+            cliOutput.scrollTop = cliOutput.scrollHeight;
+        }
+
+        function runCLICommand(rawCmd) {
+            const cmd = rawCmd.trim().toLowerCase();
+            if (!cmd) return;
+
+            if (cmd === 'clear' || cmd === 'cls') {
+                cliOutput.innerHTML = '<div class="text-zinc-500">Terminal limpo. Escreve <span class="text-volt font-bold">help</span> para ver os comandos.</div>';
+                return;
+            }
+
+            printCLILine(`pedro@pl19:~$ ${rawCmd}`, true);
+
+            switch (cmd) {
+                case 'help':
+                    printCLILine(`
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1 text-xs">
+                            <div><span class="text-volt font-bold">whois</span>     — Perfil técnico & formação</div>
+                            <div><span class="text-volt font-bold">projects</span>  — Listar projetos & links</div>
+                            <div><span class="text-volt font-bold">stack</span>     — Arsenal de código & redes</div>
+                            <div><span class="text-volt font-bold">ping</span>      — Testar latência do nó PL19</div>
+                            <div><span class="text-volt font-bold">ipconfig</span>  — Configuração de rede simulada</div>
+                            <div><span class="text-volt font-bold">cv</span>        — Abrir currículo em PDF A4</div>
+                            <div><span class="text-volt font-bold">email</span>     — Copiar email de contacto</div>
+                            <div><span class="text-volt font-bold">clear</span>     — Limpar ecrã do terminal</div>
+                        </div>
+                    `);
+                    break;
+
+                case 'whois':
+                    printCLILine(`
+                        <div class="space-y-1 text-xs">
+                            <div><span class="text-zinc-500">USER:</span> Pedro Dinis Lopes (19 anos // Vila Nova de Gaia, PT)</div>
+                            <div><span class="text-zinc-500">ROLE:</span> Full-Stack Web Developer & Network Infrastructure Student</div>
+                            <div><span class="text-zinc-500">EDUCATION:</span> CTeSP Redes e Sistemas Informáticos @ ISPGAYA | TSI @ Colégio de Gaia (Média 16)</div>
+                            <div><span class="text-zinc-500">FIELD EXP:</span> 400h FCT @ Printgal (Web Management, Catalog Auditing & DB Operations)</div>
+                        </div>
+                    `);
+                    break;
+
+                case 'projects':
+                case 'ls':
+                    printCLILine(`
+                        <div class="space-y-2 text-xs">
+                            <div><span class="text-volt">[01] ISPGUIA — Student Hub</span> (HTML/CSS/JS/GoatCounter) — <span class="text-zinc-400">Staging / ISPGAYA</span></div>
+                            <div><span class="text-volt">[02] Sistema de Gestão Integrado</span> (PHP/MySQL/JS) — <span class="text-zinc-400">Full-Stack PAP</span></div>
+                            <div><span class="text-volt">[03] Topologias LAN & Subnetting</span> (Cisco IOS CLI/VLSM) — <a href="https://jpferrazzz.github.io/quatro-nos/" target="_blank" class="underline text-white hover:text-volt">Abrir Live Demo ↗</a></div>
+                        </div>
+                    `);
+                    break;
+
+                case 'stack':
+                    printCLILine(`
+                        <div class="space-y-1 text-xs">
+                            <div><span class="text-volt">[DEV]</span> HTML5, CSS3, JavaScript, PHP, Python, Java, C</div>
+                            <div><span class="text-volt">[DATA]</span> MySQL, MariaDB, Git, GitHub, VS Code, XAMPP, GoatCounter</div>
+                            <div><span class="text-volt">[NET]</span> Cisco Packet Tracer, IOS CLI, Routing & Switching, VLANs, VLSM, Hardware</div>
+                        </div>
+                    `);
+                    break;
+
+                case 'ping':
+                    printCLILine(`Pinging pdsl19.github.io [185.199.108.153] with 32 bytes of data:`);
+                    setTimeout(() => printCLILine(`Reply from 185.199.108.153: bytes=32 time=4ms TTL=58 <span class="text-volt">[OK]</span>`), 180);
+                    setTimeout(() => printCLILine(`Reply from 185.199.108.153: bytes=32 time=3ms TTL=58 <span class="text-volt">[OK]</span>`), 360);
+                    setTimeout(() => printCLILine(`Ping statistics: Packets: Sent = 2, Received = 2, Lost = 0 (0% loss)`), 540);
+                    break;
+
+                case 'ipconfig':
+                case 'ifconfig':
+                    printCLILine(`
+                        <div class="space-y-1 text-xs">
+                            <div class="text-white font-bold">Ethernet adapter VLAN_PORTFOLIO_19:</div>
+                            <div>   Connection-specific DNS Suffix  . : vng.pdsl19.local</div>
+                            <div>   IPv4 Address. . . . . . . . . . . : <span class="text-volt">192.168.19.10</span></div>
+                            <div>   Subnet Mask . . . . . . . . . . . : 255.255.255.192 (/26 VLSM)</div>
+                            <div>   Default Gateway . . . . . . . . . : 192.168.19.1</div>
+                        </div>
+                    `);
+                    break;
+
+                case 'cv':
+                    printCLILine(`A abrir dossier de currículo (CV_PedroLopes.pdf)...`);
+                    setTimeout(() => {
+                        closeCLIModal();
+                        setTimeout(openCVModal, 260);
+                    }, 350);
+                    break;
+
+                case 'email':
+                case 'contact':
+                    printCLILine(`Email <span class="text-volt">pedrodinislopes@gmail.com</span> copiado para a área de transferência.`);
+                    triggerSmartEmail();
+                    break;
+
+                default:
+                    printCLILine(`Comando não reconhecido: <span class="text-white">"${rawCmd}"</span>. Escreve <span class="text-volt font-bold">help</span> para ver a lista de comandos.`);
+            }
+        }
+
+        if (cliForm) {
+            cliForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const val = cliInput.value;
+                cliInput.value = '';
+                runCLICommand(val);
+            });
+        }
+        
     </script>
 </body>
 </html>
