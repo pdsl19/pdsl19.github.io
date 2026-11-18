@@ -1708,6 +1708,207 @@
                 }
             }
         }
+
+        // 17. UPGRADE 07: INSPETOR RAIO-X DA STACK + RÉGUA LATERAL DE TELEMETRIA + TAB VISIBILITY
+        
+        // 1. Inspetor Raio-X na Secção 03 (Stack Técnica)
+        const stackSection = document.getElementById('stack');
+        if (stackSection) {
+            const stackMap = {
+                'HTML5 / CSS3': {
+                    role: 'ARQUITETURA FRONTEND & UI RESPONSIVA',
+                    usage: 'Usado em produção no portal ISPGUIA, na gestão de conteúdos na Printgal (400h FCT) e neste portfólio.',
+                    context: 'DOM Semântico, Tailwind CSS, Flexbox/Grid e Otimização Mobile-First'
+                },
+                'JavaScript': {
+                    role: 'LÓGICA CLIENT-SIDE, DOM & ANIMAÇÃO',
+                    usage: 'Motor interativo do portal ISPGUIA, validações dinâmicas na PAP e física GSAP/Lenis + Web Audio API neste site.',
+                    context: 'ES6+, Fetch API Assíncrona, Manipulação DOM e Eventos de Telemetria'
+                },
+                'PHP': {
+                    role: 'DESENVOLVIMENTO BACKEND & SESSÕES',
+                    usage: 'Núcleo do Sistema de Gestão Integrado (PAP) para o Centro Social Paroquial N. Sra. da Boavista.',
+                    context: 'Autenticação Segura, Controlo de Permissões, CRUD e Ligação PDO/MySQLi'
+                },
+                'Python': {
+                    role: 'AUTOMAÇÃO, SCRIPTS & LÓGICA DE DADOS',
+                    usage: 'Desenvolvimento de scripts técnicos, algoritmos e processamento estruturado de informação.',
+                    context: 'Automação de Tarefas, Estruturas de Dados e Resolução Algorítmica'
+                },
+                'Java': {
+                    role: 'PROGRAMAÇÃO ORIENTADA A OBJETOS (POO)',
+                    usage: 'Desenvolvimento de aplicações estruturadas no percurso académico (Colégio de Gaia & ISPGAYA).',
+                    context: 'Classes, Polimorfismo, Encapsulamento e Arquitetura de Software'
+                },
+                'C': {
+                    role: 'PROGRAMAÇÃO DE BAIXO NÍVEL & MEMÓRIA',
+                    usage: 'Fundamentos de arquitetura de computadores, gestão de memória e algoritmos de alta eficiência no ISPGAYA.',
+                    context: 'Apontadores, Estruturas, Compilação GCC e Lógica de Sistemas'
+                },
+                'MySQL': {
+                    role: 'MODELAÇÃO & GESTÃO DE BASES DE DADOS RELACIONAIS',
+                    usage: 'Estruturação de dados da PAP e operações reais em catálogos durante o estágio na Printgal.',
+                    context: 'Normalização, Queries Complexas (JOINs), Chaves Estrangeiras e Índices'
+                },
+                'MariaDB': {
+                    role: 'MOTOR RELACIONAL DE ALTA PERFORMANCE',
+                    usage: 'Administração local e académica de servidores de base de dados para sistemas web full-stack.',
+                    context: 'Gestão de Utilizadores/Privilégios, Backups, Integridade e phpMyAdmin'
+                },
+                'Git & GitHub': {
+                    role: 'CONTROLO DE VERSÕES & DEPLOY CONTÍNUO',
+                    usage: 'Gestão de código do portal ISPGUIA em equipa, documentação técnica e alojamento CI/CD no GitHub Pages.',
+                    context: 'Branches, Merges, Resolução de Conflitos e GitHub Actions/Pages'
+                },
+                'VS Code': {
+                    role: 'AMBIENTE DE DESENVOLVIMENTO PRINCIPAL',
+                    usage: 'Workflow diário em VS Code / Cursor com extensões de depuração, Git integrado e Live Server.',
+                    context: 'Debugging, Integração de Terminal PowerShell/Bash e Produtividade'
+                },
+                'XAMPP': {
+                    role: 'SERVIDOR LOCAL APACHE + MARIADB + PHP',
+                    usage: 'Ambiente de testes e desenvolvimento local para a PAP e laboratórios de programação web.',
+                    context: 'Configuração Apache, VirtualHosts, phpMyAdmin e Debugging Local'
+                },
+                'GoatCounter': {
+                    role: 'TELEMETRIA & WEB ANALYTICS PRIVACY-FIRST',
+                    usage: 'Implementado no portal ISPGUIA para monitorizar acessos e páginas mais consultadas pelos alunos do ISPGAYA.',
+                    context: 'Métricas em Tempo Real sem Cookies Invasivos e Dashboards de Tráfego'
+                },
+                'Cisco Packet Tracer': {
+                    role: 'SIMULAÇÃO & ARQUITETURA DE REDES',
+                    usage: 'Planeamento de topologias multi-nó (Projeto Quatro-Nós) no CTeSP de Redes e Sistemas Informáticos.',
+                    context: 'Topologias LAN/WAN, Routers, Switches Layer 2/3 e Testes ICMP'
+                },
+                'TCP/IP & VLSM': {
+                    role: 'ENDEREÇAMENTO IP & CÁLCULO DE SUB-REDES',
+                    usage: 'Dimensionamento eficiente de blocos de rede sem desperdício de endereços IPv4 em projetos do ISPGAYA.',
+                    context: 'Máscaras de Sub-rede Variáveis (VLSM), CIDR, Gateways e Broadcast'
+                },
+                'Routing & Switching': {
+                    role: 'ENCAMINHAMENTO & SEGMENTAÇÃO POR VLANS',
+                    usage: 'Configuração de equipamentos via Cisco IOS CLI com separação de tráfego por departamentos.',
+                    context: 'VLANs, Trunking 802.1Q, Inter-VLAN Routing, Tabelas ARP e Rotas Estáticas'
+                },
+                'VirtualBox': {
+                    role: 'VIRTUALIZAÇÃO DE SISTEMAS & LABORATÓRIOS',
+                    usage: 'Criação de máquinas virtuais isoladas para testes de sistemas operativos, servidores e redes internas.',
+                    context: 'Snapshots, Redes NAT/Bridged/Internal e Administração Linux/Windows'
+                },
+                'PC Hardware': {
+                    role: 'MONTAGEM, DIAGNÓSTICO & WORKSTATIONS',
+                    usage: 'Configuração de setups multi-monitor, manutenção de desktops/portáteis e diagnóstico de componentes.',
+                    context: 'Assemblagem, Gestão Térmica, Upgrade de RAM/Storage e Troubleshooting'
+                }
+            };
+
+            const inspectorBox = document.createElement('div');
+            inspectorBox.className = 'mt-8 bg-black/90 border border-volt/40 p-5 sm:p-6 font-mono text-xs transition-all duration-300';
+            inspectorBox.innerHTML = `
+                <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-white/10">
+                    <span class="text-volt font-bold flex items-center gap-2">
+                        <span class="w-2 h-2 bg-volt animate-ping"></span>
+                        <span id="xray-title">STACK_XRAY // PASSA O RATO OU CLICA NUMA TECNOLOGIA ACIMA</span>
+                    </span>
+                    <span id="xray-role" class="text-zinc-500 text-[11px]">DIAGNOSTIC READY</span>
+                </div>
+                <p id="xray-usage" class="font-sans text-sm text-zinc-300 leading-relaxed mb-3">
+                    Seleciona qualquer ferramenta nos blocos acima para inspecionar onde é utilizada em projetos reais (ISPGUIA, Printgal, PAP ou Redes Cisco).
+                </p>
+                <div class="text-[11px] text-zinc-500">
+                    <span class="text-volt">SCOPE:</span> <span id="xray-context" class="text-zinc-400">Full-Stack Web + Relational Databases + Network Infrastructure</span>
+                </div>
+            `;
+            stackSection.appendChild(inspectorBox);
+
+            const xrayTitle = document.getElementById('xray-title');
+            const xrayRole = document.getElementById('xray-role');
+            const xrayUsage = document.getElementById('xray-usage');
+            const xrayContext = document.getElementById('xray-context');
+
+            const stackTags = stackSection.querySelectorAll('.gsap-fade-up span.hover-target');
+            stackTags.forEach(tag => {
+                tag.classList.add('cursor-pointer', 'select-none');
+                const techName = tag.textContent.trim();
+
+                function activateTag() {
+                    const info = stackMap[techName];
+                    if (!info) return;
+
+                    stackTags.forEach(t => t.classList.remove('bg-volt', 'text-black', 'border-volt', 'font-bold'));
+                    tag.classList.add('bg-volt', 'text-black', 'border-volt', 'font-bold');
+
+                    xrayTitle.textContent = `INSPECTING // ${techName.toUpperCase()}`;
+                    xrayRole.textContent = info.role;
+                    xrayUsage.textContent = info.usage;
+                    xrayContext.textContent = info.context;
+                }
+
+                tag.addEventListener('mouseenter', activateTag);
+                tag.addEventListener('click', () => {
+                    playTelemetrySound('click');
+                    activateTag();
+                });
+            });
+        }
+
+        // 2. Régua Lateral de Telemetria (Setores + % Scroll + G-Force Velocity) em PC
+        const sideHud = document.createElement('div');
+        sideHud.className = 'hidden xl:flex fixed right-5 top-1/2 -translate-y-1/2 z-40 flex-col items-end gap-3 font-mono text-[10px] text-zinc-500 pointer-events-none select-none';
+        sideHud.innerHTML = `
+            <div class="bg-obsidian/80 backdrop-blur-md border border-white/10 px-2.5 py-2 text-right space-y-1">
+                <div class="text-volt font-bold" id="hud-sector">SEC 00 // HERO</div>
+                <div>DEPTH: <span id="hud-depth" class="text-white font-bold">000%</span></div>
+                <div class="flex items-center justify-end gap-1.5">
+                    <span>VEL:</span>
+                    <div class="w-14 h-1.5 bg-zinc-900 overflow-hidden">
+                        <div id="hud-vel-bar" class="h-full bg-volt w-0 transition-all duration-75"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(sideHud);
+
+        const hudSector = document.getElementById('hud-sector');
+        const hudDepth = document.getElementById('hud-depth');
+        const hudVelBar = document.getElementById('hud-vel-bar');
+
+        lenis.on('scroll', (e) => {
+            if (hudDepth) {
+                const pct = Math.min(100, Math.max(0, Math.round(e.progress * 100)));
+                hudDepth.textContent = String(pct).padStart(3, '0') + '%';
+            }
+            if (hudVelBar) {
+                const velPct = Math.min(100, Math.round(Math.abs(e.velocity) * 18));
+                hudVelBar.style.width = `${velPct}%`;
+            }
+            if (hudSector) {
+                const y = window.scrollY;
+                const pTop = document.getElementById('projetos')?.offsetTop - 250 || 600;
+                const eTop = document.getElementById('experiencia')?.offsetTop - 250 || 1400;
+                const sTop = document.getElementById('stack')?.offsetTop - 250 || 2200;
+                const cTop = document.getElementById('contacto')?.offsetTop - 350 || 2900;
+
+                if (y >= cTop) hudSector.textContent = 'SEC 04 // CONTACT';
+                else if (y >= sTop) hudSector.textContent = 'SEC 03 // STACK';
+                else if (y >= eTop) hudSector.textContent = 'SEC 02 // TRACK';
+                else if (y >= pTop) hudSector.textContent = 'SEC 01 // WORK';
+                else hudSector.textContent = 'SEC 00 // HERO';
+            }
+        });
+
+        // 3. Telemetria Dinâmica na Aba do Browser (Visibility API)
+        const defaultTabTitle = document.title;
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                document.title = '[● STANDBY] PEDRO LOPES // PL19';
+            } else {
+                document.title = '[⚡ ONLINE] PEDRO LOPES // PL19';
+                setTimeout(() => {
+                    if (!document.hidden) document.title = defaultTabTitle;
+                }, 1800);
+            }
+        });
         
     </script>
 </body>
