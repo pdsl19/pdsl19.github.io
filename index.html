@@ -112,11 +112,7 @@
         .marquee-track {
             display: flex;
             width: max-content;
-            animation: marquee 22s linear infinite;
-        }
-        @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+            will-change: transform;
         }
 
         .spotlight-card {
@@ -1038,6 +1034,50 @@
                 ease: 'power3.out'
             });
         });
+        // 11. UPGRADE 01: FÍSICA REATIVA AO SCROLL (MARQUEE CINÉTICO & INÉRCIA)
+        const marqueeTrack = document.querySelector('.marquee-track');
+        let marqueePos = 0;
+        let marqueeDir = -1; // -1 = Esquerda (Scroll Down) | 1 = Direita (Scroll Up)
+        const baseSpeed = 1.1;
+        let velocityBoost = 0;
+        let currentSkew = 0;
+        let targetSkew = 0;
+
+        lenis.on('scroll', (e) => {
+            const vel = e.velocity;
+            if (Math.abs(vel) > 0.05) {
+                marqueeDir = vel > 0 ? -1 : 1;
+            }
+            // Aceleração proporcional à força do scroll + inclinação G-Force
+            velocityBoost = Math.min(Math.abs(vel) * 1.6, 26);
+            targetSkew = Math.max(Math.min(vel * 0.45, 12), -12);
+        });
+
+        gsap.ticker.add(() => {
+            if (!marqueeTrack) return;
+
+            // Desaceleração suave (inércia) quando o scroll pára
+            velocityBoost *= 0.92;
+            targetSkew *= 0.9;
+            currentSkew += (targetSkew - currentSkew) * 0.15;
+
+            const speed = baseSpeed + velocityBoost;
+            marqueePos += speed * marqueeDir;
+
+            // Loop infinito perfeito nas duas direções
+            const halfWidth = marqueeTrack.scrollWidth / 2;
+            if (marqueePos <= -halfWidth) {
+                marqueePos += halfWidth;
+            } else if (marqueePos > 0) {
+                marqueePos -= halfWidth;
+            }
+
+            gsap.set(marqueeTrack, {
+                x: marqueePos,
+                skewX: currentSkew
+            });
+        });
+        
     </script>
 </body>
 </html>
