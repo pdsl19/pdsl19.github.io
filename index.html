@@ -1508,7 +1508,99 @@
             });
             el.addEventListener('click', () => playTelemetrySound('click'));
         });
-        
+
+        // 15. UPGRADE 05: CURSOR CONTEXTUAL HUD, ATALHOS DE TECLADO (1-5, L, M) & TELEMETRIA FPS
+        if (isDesktopPointer) {
+            const ringEl = document.getElementById('cursor-ring');
+            const dotEl = document.getElementById('cursor-dot');
+
+            if (ringEl && dotEl) {
+                ringEl.classList.add('flex', 'items-center', 'justify-center');
+                const cursorLabel = document.createElement('span');
+                cursorLabel.id = 'cursor-label';
+                cursorLabel.className = 'font-mono text-[9px] font-bold tracking-wider text-volt uppercase opacity-0 transition-opacity duration-200 select-none';
+                ringEl.appendChild(cursorLabel);
+
+                function resolveCursorLabel(target) {
+                    if (!target) return '';
+                    if (target.closest('a[download], [onclick*="openCVModal"]')) return 'PDF ↓';
+                    if (target.closest('[onclick*="triggerSmartEmail"]')) return 'COPY';
+                    if (target.closest('[onclick*="openCLIModal"]')) return 'SHELL';
+                    if (target.closest('#livery-btn')) return 'LIVERY';
+                    if (target.closest('#sfx-btn')) return 'AUDIO';
+                    if (target.closest('a[target="_blank"]')) return 'OPEN ↗';
+                    if (target.closest('.nav-link')) return 'WARP';
+                    if (target.closest('.project-card')) return 'NODE';
+                    return '';
+                }
+
+                document.addEventListener('mouseover', (e) => {
+                    const label = resolveCursorLabel(e.target);
+                    if (label) {
+                        cursorLabel.textContent = label;
+                        cursorLabel.classList.remove('opacity-0');
+                        cursorLabel.classList.add('opacity-100');
+                        dotEl.style.opacity = '0';
+                    } else {
+                        cursorLabel.classList.remove('opacity-100');
+                        cursorLabel.classList.add('opacity-0');
+                        dotEl.style.opacity = '1';
+                    }
+                });
+            }
+        }
+
+        // Atalhos rápidos de teclado (1-5 para navegação, L para Livery, M para Mute)
+        window.addEventListener('keydown', (e) => {
+            const activeTag = document.activeElement ? document.activeElement.tagName : '';
+            if (activeTag === 'INPUT' || activeTag === 'TEXTAREA' || e.ctrlKey || e.metaKey || e.altKey) return;
+
+            const key = e.key.toLowerCase();
+            if (key === '1') {
+                playTelemetrySound('click');
+                navigateToSection('#projetos', '01. PROJETOS [KEY 1]');
+            } else if (key === '2') {
+                playTelemetrySound('click');
+                navigateToSection('#experiencia', '02. PERCURSO [KEY 2]');
+            } else if (key === '3') {
+                playTelemetrySound('click');
+                navigateToSection('#stack', '03. STACK [KEY 3]');
+            } else if (key === '4') {
+                playTelemetrySound('click');
+                navigateToSection('#contacto', '04. CONTACTO [KEY 4]');
+            } else if (key === '5') {
+                playTelemetrySound('click');
+                if (cvModal.classList.contains('hidden')) openCVModal();
+                else closeCVModal();
+            } else if (key === 'l') {
+                cycleLivery();
+            } else if (key === 'm') {
+                toggleSFX();
+            }
+        });
+
+        // Medidor de FPS em Tempo Real no Footer
+        const footerEngineEl = document.querySelector('footer .text-volt');
+        if (footerEngineEl) {
+            footerEngineEl.innerHTML = `<span id="fps-readout" class="text-white">60 FPS</span> // ENGINE: GSAP + LENIS`;
+            const fpsEl = document.getElementById('fps-readout');
+            let frameCount = 0;
+            let lastFpsTime = performance.now();
+
+            function updateFPS(now) {
+                frameCount++;
+                const delta = now - lastFpsTime;
+                if (delta >= 500) {
+                    const fps = Math.min(Math.round((frameCount * 1000) / delta), 240);
+                    if (fpsEl) fpsEl.textContent = `${fps} FPS`;
+                    frameCount = 0;
+                    lastFpsTime = now;
+                }
+                requestAnimationFrame(updateFPS);
+            }
+            requestAnimationFrame(updateFPS);
+        }
+
     </script>
 </body>
 </html>
