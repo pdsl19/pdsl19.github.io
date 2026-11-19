@@ -642,14 +642,13 @@
             </section>
         </main>
 
-        <!-- FOOTER -->
-        <footer class="border-t border-white/10 py-8 px-4 sm:px-6">
-            <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-[11px] sm:text-xs text-zinc-500 text-center sm:text-left">
-                <div>© 2026 PEDRO DINIS LOPES // VILA NOVA DE GAIA</div>
-                <div class="text-volt">ENGINE: GSAP + LENIS SMOOTH SCROLL</div>
-            </div>
-        </footer>
-    </div>
+      <!-- FOOTER -->
+      <footer class="border-t border-white/10 pt-8 pb-24 px-4 sm:px-6">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-[11px] sm:text-xs text-zinc-500 text-center sm:text-left">
+            <div>© 2026 PEDRO DINIS LOPES // VILA NOVA DE GAIA</div>
+            <div class="text-volt">ENGINE: GSAP + LENIS SMOOTH SCROLL</div>
+        </div>
+    </footer>
 
     <!-- MODAL DO CURRÍCULO (pdfs/CV_PedroLopes.pdf) -->
     <div id="cv-modal" class="fixed inset-0 z-[90] hidden items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md">
@@ -3665,7 +3664,93 @@
             });
             footerLeftBox.appendChild(copyUrlBtn);
         }
-        
+
+        // 31. DOCK INFERIOR RETRÁTIL POR HOVER (APENAS >_ CLI VISÍVEL POR DEFEITO)
+        (function setupCollapsibleDock() {
+            const cliBtn = document.querySelector('button[onclick="openCLIModal()"]');
+            const dockContainer = cliBtn ? cliBtn.parentNode : null;
+            if (!dockContainer || dockContainer.dataset.hoverDockInit === '1') return;
+            dockContainer.dataset.hoverDockInit = '1';
+
+            // Todos os botões da dock exceto o primeiro (>_ CLI)
+            const extraButtons = Array.from(dockContainer.children).slice(1);
+            if (!extraButtons.length) return;
+
+            // Estilo base para recolher/expandir suavemente sem quebrar o layout de PC
+            dockContainer.classList.add('transition-all', 'duration-200');
+            extraButtons.forEach((btn) => {
+                btn.dataset.wasHiddenSm = btn.classList.contains('hidden') ? '1' : '0';
+                btn.classList.add('dock-extra-item');
+                btn.style.maxWidth = '0px';
+                btn.style.paddingLeft = '0px';
+                btn.style.paddingRight = '0px';
+                btn.style.opacity = '0';
+                btn.style.overflow = 'hidden';
+                btn.style.whiteSpace = 'nowrap';
+                btn.style.borderLeftWidth = '0px';
+                btn.style.pointerEvents = 'none';
+                btn.style.transition = 'max-width 0.24s cubic-bezier(0.16, 1, 0.3, 1), padding 0.24s ease, opacity 0.18s ease';
+            });
+
+            let closeTimer = null;
+            let isExpanded = false;
+
+            function setDockExpanded(expand) {
+                clearTimeout(closeTimer);
+                isExpanded = expand;
+
+                extraButtons.forEach((btn) => {
+                    if (expand) {
+                        if (btn.dataset.wasHiddenSm === '1') {
+                            btn.classList.remove('hidden');
+                            btn.classList.add('flex');
+                        }
+                        btn.style.maxWidth = '140px';
+                        btn.style.paddingLeft = '';
+                        btn.style.paddingRight = '';
+                        btn.style.opacity = '1';
+                        btn.style.borderLeftWidth = '';
+                        btn.style.pointerEvents = 'auto';
+                    } else {
+                        btn.style.maxWidth = '0px';
+                        btn.style.paddingLeft = '0px';
+                        btn.style.paddingRight = '0px';
+                        btn.style.opacity = '0';
+                        btn.style.borderLeftWidth = '0px';
+                        btn.style.pointerEvents = 'none';
+                        if (btn.dataset.wasHiddenSm === '1') {
+                            setTimeout(() => {
+                                if (!isExpanded) {
+                                    btn.classList.add('hidden');
+                                    btn.classList.remove('flex');
+                                }
+                            }, 240);
+                        }
+                    }
+                });
+            }
+
+            if (typeof isDesktopPointer !== 'undefined' && isDesktopPointer) {
+                dockContainer.addEventListener('mouseenter', () => {
+                    clearTimeout(closeTimer);
+                    setDockExpanded(true);
+                });
+
+                dockContainer.addEventListener('mouseleave', () => {
+                    clearTimeout(closeTimer);
+                    closeTimer = setTimeout(() => {
+                        setDockExpanded(false);
+                    }, 180);
+                });
+            } else {
+                // Em touch/mobile, toque longo ou duplo toque no gatilho se necessário, mantendo compacta
+                cliBtn.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    setDockExpanded(!isExpanded);
+                });
+            }
+        })();
+
     </script>
 
     <!-- GOATCOUNTER ANALYTICS // PDSL19 -->
