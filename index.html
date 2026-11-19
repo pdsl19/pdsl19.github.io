@@ -3344,13 +3344,13 @@
 
         // 28. UPGRADE 17: NAVEGAÇÃO PREV/NEXT NO MODAL DE ARQUITETURA + RESET RÁPIDO (KEY R)
 
+        let activeArchIdx = 0;
+
         // 1. Botões [← PREV] e [NEXT →] dentro do Modal de Arquitetura (0..2)
         const archHeader = document.querySelector('#arch-modal-box > div.flex.items-center.justify-between');
         const closeArchBtnEl = document.getElementById('close-arch-btn');
 
         if (archHeader && closeArchBtnEl && typeof archSpecs !== 'undefined') {
-            let activeArchIdx = 0;
-
             const navGroup = document.createElement('div');
             navGroup.className = 'flex items-center gap-1.5 shrink-0';
             navGroup.innerHTML = `
@@ -3364,7 +3364,7 @@
 
             const wrappedOpenArch = openArchModal;
             openArchModal = function(idx) {
-                activeArchIdx = (idx + archSpecs.length) % archSpecs.length;
+                activeArchIdx = ((idx % archSpecs.length) + archSpecs.length) % archSpecs.length;
                 wrappedOpenArch(activeArchIdx);
             };
 
@@ -3419,11 +3419,28 @@
         window.addEventListener('keydown', (e) => {
             const activeTag = document.activeElement ? document.activeElement.tagName : '';
             if (activeTag === 'INPUT' || activeTag === 'TEXTAREA' || e.ctrlKey || e.metaKey || e.altKey) return;
+
+            const modalEl = document.getElementById('arch-modal');
+            const isArchOpen = modalEl && !modalEl.classList.contains('hidden');
+
+            if (isArchOpen) {
+                if (e.code === 'ArrowLeft' || e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    openArchModal(activeArchIdx - 1);
+                    return;
+                }
+                if (e.code === 'ArrowRight' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    openArchModal(activeArchIdx + 1);
+                    return;
+                }
+            }
+
             if (e.code === 'KeyR' || e.key.toLowerCase() === 'r') {
                 resetPortfolioState();
             }
         });
-        
+
     </script>
 
     <!-- GOATCOUNTER ANALYTICS // PDSL19 -->
