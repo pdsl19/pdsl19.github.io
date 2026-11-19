@@ -3441,6 +3441,137 @@
             }
         });
 
+        // 29. UPGRADE 18: COMANDO VLSM NO CLI + MODO FOCO (KEY F) + SYNC FINAL DO VOLANTE (KEY H)
+
+        // 1. Calculadora VLSM / Subnetting IPv4 dentro do Terminal CLI (ex: "vlsm 192.168.19.0/26")
+        function calculateVLSMSubnet(cidrInput) {
+            const cleaned = (cidrInput || '192.168.19.0/26').trim();
+            const match = cleaned.match(/^(\d{1,3}(?:\.\d{1,3}){3})\s*\/\s*(\d{1,2})$/);
+            if (!match) return null;
+
+            const octets = match[1].split('.').map(Number);
+            const prefix = Number(match[2]);
+            if (prefix < 1 || prefix > 32 || octets.some(o => o < 0 || o > 255)) return null;
+
+            const ipInt = ((octets[0] << 24) | (octets[1] << 16) | (octets[2] << 8) | octets[3]) >>> 0;
+            const maskInt = prefix === 0 ? 0 : ((0xffffffff << (32 - prefix)) >>> 0);
+            const wildcardInt = (~maskInt) >>> 0;
+            const netInt = (ipInt & maskInt) >>> 0;
+            const broadcastInt = (netInt | wildcardInt) >>> 0;
+
+            const toIp = (num) => [
+                (num >>> 24) & 255,
+                (num >>> 16) & 255,
+                (num >>> 8) & 255,
+                num & 255
+            ].join('.');
+
+            const totalAddrs = Math.pow(2, 32 - prefix);
+            const usableHosts = prefix >= 31 ? (prefix === 32 ? 1 : 2) : Math.max(0, totalAddrs - 2);
+            const firstHost = prefix >= 31 ? toIp(netInt) : toIp((netInt + 1) >>> 0);
+            const lastHost = prefix >= 31 ? toIp(broadcastInt) : toIp((broadcastInt - 1) >>> 0);
+
+            return {
+                cidr: `${toIp(netInt)}/${prefix}`,
+                mask: toIp(maskInt),
+                wildcard: toIp(wildcardInt),
+                network: toIp(netInt),
+                firstHost,
+                lastHost,
+                broadcast: toIp(broadcastInt),
+                usableHosts
+            };
+        }
+
+        if (typeof runCLICommand === 'function' && typeof printCLILine === 'function') {
+            const baseRunCLI = runCLICommand;
+            runCLICommand = function(rawCmd) {
+                const trimmed = (rawCmd || '').trim();
+                const lower = trimmed.toLowerCase();
+
+                if (lower === 'vlsm' || lower.startsWith('vlsm ')) {
+                    printCLILine(`pedro@pl19:~$ ${trimmed}`, true);
+                    const arg = lower === 'vlsm' ? '192.168.19.0/26' : trimmed.slice(5).trim();
+                    const res = calculateVLSMSubnet(arg);
+
+                    if (!res) {
+                        printCLILine(`<span class="text-volt">Uso:</span> vlsm &lt;IP/PREFIXO&gt; (ex: <span class="text-white">vlsm 192.168.19.0/26</span> ou <span class="text-white">vlsm 10.10.20.0/27</span>)`);
+                        return;
+                    }
+
+                    printCLILine(`
+                        <div class="space-y-1 text-xs">
+                            <div class="text-volt font-bold">VLSM SUBNET CALCULATOR // ${res.cidr}</div>
+                            <div><span class="text-zinc-500">NETWORK ID:</span> <span class="text-white font-bold">${res.network}</span></div>
+                            <div><span class="text-zinc-500">SUBNET MASK:</span> <span class="text-zinc-300">${res.mask}</span> <span class="text-zinc-500">(Wildcard: ${res.wildcard})</span></div>
+                            <div><span class="text-zinc-500">HOST RANGE:</span> <span class="text-volt">${res.firstHost}</span> → <span class="text-volt">${res.lastHost}</span> <span class="text-zinc-500">(${res.usableHosts} hosts)</span></div>
+                            <div><span class="text-zinc-500">BROADCAST:</span> <span class="text-zinc-300">${res.broadcast}</span></div>
+                        </div>
+                    `);
+                    return;
+                }
+
+                baseRunCLI(rawCmd);
+            };
+        }
+
+        // 2. Modo Foco / Clean HUD (Tecla F) — Oculta/mostra elementos periféricos flutuantes
+        let focusHudHidden = false;
+        function toggleFocusHud() {
+            focusHudHidden = !focusHudHidden;
+            if (typeof playTelemetrySound === 'function') playTelemetrySound('click');
+
+            const dockEl = document.getElementById('sfx-btn')?.parentNode;
+            const sideHudEl = document.getElementById('hud-sector')?.closest('div.fixed');
+            const warpBtnEl = document.getElementById('warp-top-btn');
+
+            [dockEl, sideHudEl, warpBtnEl].forEach(el => {
+                if (!el) return;
+                el.classList.toggle('opacity-0', focusHudHidden);
+                el.classList.toggle('pointer-events-none', focusHudHidden);
+                el.classList.add('transition-opacity', 'duration-200');
+            });
+
+            if (navHud && navHudText) {
+                navHudText.textContent = focusHudHidden ? 'UI // FOCUS MODE [PERIPHERAL HUD HIDDEN]' : 'UI // FULL TELEMETRY HUD';
+                gsap.killTweensOf(navHud);
+                gsap.to(navHud, { opacity: 1, y: 0, duration: 0.2 });
+                gsap.to(navHud, { opacity: 0, y: -8, duration: 0.3, delay: 1.2 });
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            const activeTag = document.activeElement ? document.activeElement.tagName : '';
+            if (activeTag === 'INPUT' || activeTag === 'TEXTAREA' || e.ctrlKey || e.metaKey || e.altKey) return;
+            if (e.code === 'KeyF' || e.key.toLowerCase() === 'f') {
+                e.preventDefault();
+                toggleFocusHud();
+            }
+        });
+
+        // 3. Sincronizar atalhos Q, R e F no Modal do Volante (Tecla H)
+        const hotkeysGridBox = document.querySelector('#hotkeys-box .grid');
+        if (hotkeysGridBox && !document.getElementById('hk-synced-m18')) {
+            const syncWrap = document.createElement('div');
+            syncWrap.id = 'hk-synced-m18';
+            syncWrap.className = 'sm:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-2.5';
+            syncWrap.innerHTML = `
+                <div class="bg-black border border-white/10 p-2.5 flex justify-between items-center">
+                    <span>QR Sync</span>
+                    <span class="px-2 py-0.5 bg-volt text-black font-bold">Q</span>
+                </div>
+                <div class="bg-black border border-white/10 p-2.5 flex justify-between items-center">
+                    <span>Reset UI</span>
+                    <span class="px-2 py-0.5 bg-volt text-black font-bold">R</span>
+                </div>
+                <div class="bg-black border border-white/10 p-2.5 flex justify-between items-center">
+                    <span>Modo Foco</span>
+                    <span class="px-2 py-0.5 bg-volt text-black font-bold">F</span>
+                </div>
+            `;
+            hotkeysGridBox.appendChild(syncWrap);
+        }
+
     </script>
 
     <!-- GOATCOUNTER ANALYTICS // PDSL19 -->
