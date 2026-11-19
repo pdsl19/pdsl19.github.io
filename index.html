@@ -3572,6 +3572,100 @@
             hotkeysGridBox.appendChild(syncWrap);
         }
 
+        // 30. UPGRADE 19: FILTRO DE PROJETOS POR ÁREA + COMANDO STATUS NO CLI + COPY URL NO FOOTER
+
+        // 1. Barra de Filtro por Área Técnica na Secção 01 (Projetos)
+        const projectsSection = document.getElementById('projetos');
+        const projectsGrid = projectsSection ? projectsSection.querySelector('.grid.grid-cols-1.lg\\:grid-cols-12') : null;
+
+        if (projectsSection && projectsGrid && typeof allProjectCards !== 'undefined' && allProjectCards.length >= 3) {
+            const filterBar = document.createElement('div');
+            filterBar.id = 'project-filter-bar';
+            filterBar.className = 'flex flex-wrap items-center gap-2 mb-8 font-mono text-xs';
+            filterBar.innerHTML = `
+                <span class="text-zinc-500 mr-1">// FILTER:</span>
+                <button type="button" data-filter="all" class="proj-filter-btn hover-target bg-volt text-black font-bold px-3 py-1.5 border border-volt transition">[ALL // 03]</button>
+                <button type="button" data-filter="web" class="proj-filter-btn hover-target bg-black text-zinc-300 px-3 py-1.5 border border-white/15 hover:border-volt hover:text-volt transition">[WEB & FULL-STACK]</button>
+                <button type="button" data-filter="data" class="proj-filter-btn hover-target bg-black text-zinc-300 px-3 py-1.5 border border-white/15 hover:border-volt hover:text-volt transition">[DATA & SQL]</button>
+                <button type="button" data-filter="net" class="proj-filter-btn hover-target bg-black text-zinc-300 px-3 py-1.5 border border-white/15 hover:border-volt hover:text-volt transition">[NETWORKS & CISCO]</button>
+            `;
+            projectsSection.insertBefore(filterBar, projectsGrid);
+
+            const cardAreas = [
+                ['all', 'web'],
+                ['all', 'web', 'data'],
+                ['all', 'net']
+            ];
+
+            filterBar.querySelectorAll('.proj-filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (typeof playTelemetrySound === 'function') playTelemetrySound('click');
+                    const filterKey = btn.getAttribute('data-filter');
+
+                    filterBar.querySelectorAll('.proj-filter-btn').forEach(b => {
+                        b.className = 'proj-filter-btn hover-target bg-black text-zinc-300 px-3 py-1.5 border border-white/15 hover:border-volt hover:text-volt transition';
+                    });
+                    btn.className = 'proj-filter-btn hover-target bg-volt text-black font-bold px-3 py-1.5 border border-volt transition';
+
+                    allProjectCards.forEach((card, idx) => {
+                        const tags = cardAreas[idx] || ['all'];
+                        const matches = filterKey === 'all' || tags.includes(filterKey);
+                        card.style.opacity = matches ? '1' : '0.25';
+                        card.style.filter = matches ? 'none' : 'grayscale(0.75)';
+                        card.classList.toggle('ring-1', matches && filterKey !== 'all');
+                        card.classList.toggle('ring-volt/60', matches && filterKey !== 'all');
+                    });
+                });
+            });
+        }
+
+        // 2. Comando "status" no Terminal CLI para diagnóstico rápido do estado atual
+        if (typeof runCLICommand === 'function' && typeof printCLILine === 'function') {
+            const prevRunCLI = runCLICommand;
+            runCLICommand = function(rawCmd) {
+                const trimmed = (rawCmd || '').trim();
+                if (trimmed.toLowerCase() === 'status') {
+                    printCLILine(`pedro@pl19:~$ ${trimmed}`, true);
+                    const livName = (typeof liveries !== 'undefined' && liveries[currentLiveryIdx]) ? liveries[currentLiveryIdx].name : 'VOLT';
+                    const langVal = typeof currentLang !== 'undefined' ? currentLang : 'PT';
+                    const sfxVal = typeof sfxEnabled !== 'undefined' && sfxEnabled ? 'ON' : 'OFF';
+                    const cadVal = typeof blueprintActive !== 'undefined' && blueprintActive ? 'ON' : 'OFF';
+                    const pingVal = typeof currentPingMs !== 'undefined' ? currentPingMs : 4;
+                    const nodeCount = document.querySelectorAll('*').length;
+
+                    printCLILine(`
+                        <div class="space-y-1 text-xs">
+                            <div class="text-volt font-bold">SYSTEM TELEMETRY SNAPSHOT // PL19</div>
+                            <div><span class="text-zinc-500">LIVERY / LOCALE:</span> <span class="text-white font-bold">${livName}</span> · <span class="text-volt">${langVal}</span></div>
+                            <div><span class="text-zinc-500">SFX / CAD MODE:</span> <span class="text-zinc-300">SFX:${sfxVal}</span> · <span class="text-zinc-300">CAD:${cadVal}</span></div>
+                            <div><span class="text-zinc-500">HTTP RTT / DOM:</span> <span class="text-volt">${pingVal}ms</span> · <span class="text-zinc-300">${nodeCount} DOM nodes</span></div>
+                        </div>
+                    `);
+                    return;
+                }
+                prevRunCLI(rawCmd);
+            };
+        }
+
+        // 3. Botão Rápido [COPY URL] no Footer
+        const footerLeftBox = document.querySelector('footer .max-w-7xl > div:first-child');
+        if (footerLeftBox && !document.getElementById('footer-copy-url-btn')) {
+            const copyUrlBtn = document.createElement('button');
+            copyUrlBtn.type = 'button';
+            copyUrlBtn.id = 'footer-copy-url-btn';
+            copyUrlBtn.className = 'hover-target ml-3 px-2 py-0.5 bg-zinc-900 border border-white/15 text-zinc-300 hover:border-volt hover:text-volt transition font-bold';
+            copyUrlBtn.textContent = '[COPY URL]';
+            copyUrlBtn.addEventListener('click', () => {
+                if (typeof playTelemetrySound === 'function') playTelemetrySound('click');
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText('https://pdsl19.github.io');
+                }
+                copyUrlBtn.textContent = '✓ COPIED';
+                setTimeout(() => { copyUrlBtn.textContent = '[COPY URL]'; }, 1800);
+            });
+            footerLeftBox.appendChild(copyUrlBtn);
+        }
+        
     </script>
 
     <!-- GOATCOUNTER ANALYTICS // PDSL19 -->
