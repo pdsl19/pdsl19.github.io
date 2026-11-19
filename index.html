@@ -3342,6 +3342,88 @@
             origOpenCLI();
         };
 
+        // 28. UPGRADE 17: NAVEGAÇÃO PREV/NEXT NO MODAL DE ARQUITETURA + RESET RÁPIDO (KEY R)
+
+        // 1. Botões [← PREV] e [NEXT →] dentro do Modal de Arquitetura (0..2)
+        const archHeader = document.querySelector('#arch-modal-box > div.flex.items-center.justify-between');
+        const closeArchBtnEl = document.getElementById('close-arch-btn');
+
+        if (archHeader && closeArchBtnEl && typeof archSpecs !== 'undefined') {
+            let activeArchIdx = 0;
+
+            const navGroup = document.createElement('div');
+            navGroup.className = 'flex items-center gap-1.5 shrink-0';
+            navGroup.innerHTML = `
+                <button type="button" id="arch-prev-btn" class="hover-target bg-zinc-900 text-zinc-300 border border-white/15 px-2.5 py-2 hover:border-volt hover:text-volt transition font-bold">
+                    ←
+                </button>
+                <button type="button" id="arch-next-btn" class="hover-target bg-zinc-900 text-zinc-300 border border-white/15 px-2.5 py-2 hover:border-volt hover:text-volt transition font-bold">
+                    →
+                </button>
+            `;
+
+            const wrappedOpenArch = openArchModal;
+            openArchModal = function(idx) {
+                activeArchIdx = (idx + archSpecs.length) % archSpecs.length;
+                wrappedOpenArch(activeArchIdx);
+            };
+
+            archHeader.insertBefore(navGroup, closeArchBtnEl);
+
+            document.getElementById('arch-prev-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                openArchModal(activeArchIdx - 1);
+            });
+
+            document.getElementById('arch-next-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                openArchModal(activeArchIdx + 1);
+            });
+        }
+
+        // 2. Atalho de Teclado [R] para Reset Rápido de Estado Visual/Preferências
+        function resetPortfolioState() {
+            if (typeof playTelemetrySound === 'function') playTelemetrySound('click');
+            localStorage.removeItem('pl19_livery');
+            localStorage.removeItem('pl19_lang');
+
+            if (typeof liveries !== 'undefined' && typeof applyLivery === 'function') {
+                currentLiveryIdx = 0;
+                applyLivery(0, false);
+            }
+            if (typeof applyLanguage === 'function') {
+                applyLanguage('PT', false);
+            }
+            if (typeof blueprintActive !== 'undefined' && blueprintActive && typeof toggleBlueprintMode === 'function') {
+                toggleBlueprintMode();
+            }
+            if (typeof sfxEnabled !== 'undefined' && !sfxEnabled && typeof toggleSFX === 'function') {
+                sfxEnabled = true;
+                const sfxLabel = document.getElementById('sfx-label');
+                const sfxBtn = document.getElementById('sfx-btn');
+                if (sfxLabel) sfxLabel.textContent = 'SFX: ON';
+                if (sfxBtn) {
+                    sfxBtn.classList.add('text-volt');
+                    sfxBtn.classList.remove('text-zinc-500');
+                }
+            }
+
+            if (navHud && navHudText) {
+                navHudText.textContent = 'SYSTEM // PREFERENCES RESET [LN4 VOLT · PT · SFX ON]';
+                gsap.killTweensOf(navHud);
+                gsap.to(navHud, { opacity: 1, y: 0, duration: 0.2 });
+                gsap.to(navHud, { opacity: 0, y: -8, duration: 0.3, delay: 1.4 });
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            const activeTag = document.activeElement ? document.activeElement.tagName : '';
+            if (activeTag === 'INPUT' || activeTag === 'TEXTAREA' || e.ctrlKey || e.metaKey || e.altKey) return;
+            if (e.code === 'KeyR' || e.key.toLowerCase() === 'r') {
+                resetPortfolioState();
+            }
+        });
+        
     </script>
 
     <!-- GOATCOUNTER ANALYTICS // PDSL19 -->
