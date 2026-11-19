@@ -3317,6 +3317,31 @@
             dockParent.appendChild(qrDockBtn);
         }
 
+        // 27. GOATCOUNTER CUSTOM EVENTS (CV, EMAIL & CLI)
+        function logGC(path, title) {
+            if (window.goatcounter && typeof window.goatcounter.count === 'function') {
+                window.goatcounter.count({ path: '/event/' + path, title: title, event: true });
+            }
+        }
+
+        const origOpenCV = openCVModal;
+        openCVModal = function() {
+            logGC('open-cv', 'CV Modal Aberto');
+            origOpenCV();
+        };
+
+        const origSmartEmail = triggerSmartEmail;
+        triggerSmartEmail = function() {
+            logGC('copy-email', 'Email Copiado');
+            origSmartEmail();
+        };
+
+        const origOpenCLI = openCLIModal;
+        openCLIModal = function() {
+            logGC('open-cli', 'Terminal CLI Aberto');
+            origOpenCLI();
+        };
+
     </script>
 
     <!-- GOATCOUNTER ANALYTICS // PDSL19 -->
